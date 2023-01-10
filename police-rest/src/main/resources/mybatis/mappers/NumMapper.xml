@@ -30,22 +30,22 @@
 	<insert id="addOrder" parameterType="Object" >
 		<![CDATA[
 		insert into num_info (guid,num,type,cardno,cname,orgid,allnum,childs,childname,idcard,name,ordertype,areatype)
-		select #{guid} ,max(num)+1 ,#{type} ,#{cardno} ,#{cname} ,#{orgid} ,
-			   CONCAT('Y' + d.prefix,IF(n.num<99,LPAD(max(num)+1, 3, 0),max(num)+1) ),
+		select #{guid} ,MAX(num) + 1 ,#{type} ,#{cardno} ,#{cname} ,#{orgid} ,
+			   CONCAT('Y', d.prefix,IF(n.num<99,LPAD(max(num)+1, 3, 0),max(num)+1) ),
 			   #{childs},#{childname},#{idcard},#{name},#{ordertype},#{areatype}
 		from num_info n left join dic d  on n.type=d.guid
-		where type=#{type} and n.orgid=#{orgid}  limit 1
+		where type=#{type} and n.orgid=#{orgid} AND n.allnum LIKE 'Y%'  limit 1
 		]]>
 	</insert>
 
 	<insert id="addTwoOrder" parameterType="Object" >
 		<![CDATA[
 		insert into num_info (guid,num,type,cardno,cname,orgid,allnum,childs,childname,idcard,name,ordertype,areatype)
-		select #{guid} ,max(num)+1 ,#{type} ,#{cardno} ,#{cname} ,#{orgid} ,
+		select #{guid} ,MAX(num) + 1 ,#{type} ,#{cardno} ,#{cname} ,#{orgid} ,
 			   CONCAT('Y',d.prefix,IF(n.num<99,LPAD(max(num)+1, 3, 0),max(num)+1) ),
 			   #{childs},#{childname},#{idcard},#{name},#{ordertype},#{areatype}
 		from num_info n left join dic_code d  on n.type=d.guid
-		where type=#{type} and n.orgid=#{orgid}  limit 1
+		where type=#{type} and n.orgid=#{orgid} AND n.allnum LIKE 'Y%'  limit 1
 		]]>
 	</insert>
 
@@ -143,7 +143,7 @@
 	<select id="queryNextNum2"  resultType="NumInfoModel" parameterType="Object">
 		<![CDATA[
 
-			select g.guid,g.allnum num,g.type,g.addtime,g.isused,cardno,'' typename,g.childs,g.childname
+			select g.guid,g.allnum num,g.type,g.addtime,g.isused,cardno,'' typename,g.childs,g.childname,g.ordertype,g.areatype
 			from  num_info g
 			inner join buss_record r on g.guid=r.pguid
 			where find_in_set (g.type,#{type})
@@ -248,10 +248,10 @@
 	<update id="updateStartNum" parameterType="Object">
 		<![CDATA[
 			delete from num_info ;
-			insert into num_info(guid,num,type,isused,orgid)
-			select SUBSTRING(guid,30),0,guid,1,orgid from dic where LENGTH (PID)=0;
-			insert into num_info(guid,num,type,isused,orgid)
-			select SUBSTRING(guid,30),0,guid,1,orgid from dic_code where LENGTH (prefix)>0;
+			insert into num_info(guid,num,type,isused,orgid,allnum)
+			select SUBSTRING(guid,30),0,guid,1,orgid,'Y001' from dic where LENGTH (PID)=0;
+			insert into num_info(guid,num,type,isused,orgid,allnum)
+			select SUBSTRING(guid,30),0,guid,1,orgid,'Y001' from dic_code where LENGTH (prefix)>0;
 		]]>
 	</update>
 
@@ -334,5 +334,17 @@
 	<delete id="deleteNum" parameterType="Object">
 		delete from num_info where guid = #{guid};
 	</delete>
+
+	<update id="updateNumberStatus" parameterType="Object">
+		UPDATE num_info SET
+		    `status`=#{status}
+		    <if test="starttime != null and starttime != ''">
+				,starttime = #{starttime}
+			</if>
+			<if test="endtime != null and endtime != ''">
+				,endtime = #{endtime}
+			</if>
+		WHERE guid = #{guid}
+	</update>
 
 </mapper>

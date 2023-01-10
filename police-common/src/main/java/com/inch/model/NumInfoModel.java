@@ -30,6 +30,33 @@ public class NumInfoModel extends BaseModel  {
 	private int ordertype;
 	private int areatype;
 	private int level;
+	private int status;
+	private String starttime;
+	private String endtime;
+
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
+	}
+
+	public String getStarttime() {
+		return starttime;
+	}
+
+	public void setStarttime(String starttime) {
+		this.starttime = starttime;
+	}
+
+	public String getEndtime() {
+		return endtime;
+	}
+
+	public void setEndtime(String endtime) {
+		this.endtime = endtime;
+	}
 
 	public int getLevel() {
 		return level;

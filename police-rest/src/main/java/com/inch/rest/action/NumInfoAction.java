@@ -16,6 +16,7 @@ import com.inch.utils.*;
 import com.socket.server.command.service.TonyCommandService;
 import com.socket.server.socket.pub.Command;
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.hssf.record.formula.functions.If;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -332,7 +333,7 @@ public class NumInfoAction extends BaseAction{
 		tonyService.sendNumToBroardCast(bean.getType(),bean,Command.COMMAND_SOCOAL_SEND_CALL,bean.getOrgid());
 		tonyService.sendToBigData(wintype,Command.COMMAND_SOCOAL_SEND_CALL,"");
 
-		if (StringUtils.isNotBlank(bean.getCardno())){
+		if (bean.getAreatype() > 0 && StringUtils.isNotBlank(bean.getCardno())){
 			//发送短信给当前叫号人
 			String content = "您等候的【"+ bean.getChildname() +"】业务已经可办理，您的排队号："+ bean.getNum() +"，请到"+ bean.getWinname() + "号窗口办理，狮山横塘便民服务中心为您服务。";
 			//发送短信到取号人手机
@@ -340,6 +341,17 @@ public class NumInfoAction extends BaseAction{
 		}
 
 		return this.successData("ok",bean);
+	}
+
+	@Auth(verifyLogin = false)
+	@RequestMapping("/updateStatus")
+	public void updateNumberStatus(NumInfoModel model,HttpServletResponse response){
+		int ret = numInfoService.updateNumberStatus(model);
+		if (ret > 0){
+			sendSuccessMessage(response,"修改成功！");
+		}else {
+			sendFailureMessage(response,"修改失败！");
+		}
 	}
 
 }

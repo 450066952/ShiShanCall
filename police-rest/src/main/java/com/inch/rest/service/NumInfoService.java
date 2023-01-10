@@ -344,4 +344,15 @@ public class NumInfoService<T> extends BaseService<T> {
 	public int deleteNum(String guid) {
 		return getMapper().deleteNum(guid);
 	}
+
+	public int updateNumberStatus(NumInfoModel model) {
+		if (model.getStatus() == 1 && StringUtils.isBlank(model.getStarttime())){
+			model.setStarttime(CommonUtil.now());
+		}
+
+		if (model.getStatus() == 2 && StringUtils.isBlank(model.getEndtime())){
+			model.setEndtime(CommonUtil.now());
+		}
+		return getMapper().updateNumberStatus(model);
+	}
 }

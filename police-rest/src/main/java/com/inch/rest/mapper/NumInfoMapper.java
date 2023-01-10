@@ -32,4 +32,6 @@ public interface NumInfoMapper<T> extends BaseMapper<T> {
     int addTwoOrder(NumInfoModel model);
 
     int addOrder(NumInfoModel model);
+
+    int updateNumberStatus(NumInfoModel model);
 }
