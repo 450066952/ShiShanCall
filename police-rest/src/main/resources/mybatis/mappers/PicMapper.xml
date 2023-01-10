@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inch.rest.mapper.PicMapper" > 
+
+ <resultMap id="noticeinfo" type="GalleryModel">
+      <result property="guid" column="guid"/>
+        <result property="notice" column="notice"/>
+        <result property="begintime" column="begintime"/>
+        <result property="endtime" column="endtime"/>
+        <result property="addtime" column="addtime"/>
+        <result property="addusername" column="addusername"/>
+        <result property="classid" column="classid"/>
+        <result property="pic" column="pic"/>
+        <result property="title" column="title"/>
+        <collection property="classList" column="{nclassid=classid}" javaType="ArrayList" select="getClassList" ></collection>
+</resultMap>
+
+<select id="getClassList" resultType="SchoolModel" >
+
+select CONCAT(IFNULL(s2.name,''),s1.name) name from school s1 left JOIN school s2 on s1.pid=s2.id
+		where find_in_set(s1.id,#{nclassid}) 
+</select>
+
+<select id="queryByList" resultMap="noticeinfo"  parameterType="Object">
+	select g.*,u.name addusername
+ 	from pic g left join sys_user u on g.adduser=u.id 
+	where 1=1 
+	
+	<if test="isadmin!=1">
+		and EXISTS (select guid from lcd_rel where guid=g.guid and  find_in_set(classid,#{classid}))
+	</if>
+	order by g.addtime desc
+</select>
+
+<delete id="delete" parameterType="Object">
+	delete from pic where guid=#{guid} 
+</delete>
+ 
+<select id="queryById"  resultType="GalleryModel" parameterType="Object">
+	select * from pic where guid = #{guid}
+</select>
+
+<select id="getChildPhoto"  resultType="String" parameterType="Object">
+	select guid from pic_photo  where find_in_set(pguid,#{ids}) 
+</select>
+
+ <update id="update" parameterType="Object" >
+  	update pic set adduser=#{adduser},title=#{title},classid=#{classid},
+  	edittime=now(),begintime=#{begintime},endtime=#{endtime} 
+  	where guid=#{guid}
+ </update>
+ 
+ <insert id="add" parameterType="Object" >
+ 	 insert into pic (guid,classid,adduser,title,begintime,endtime) 
+ 	 values (#{guid},#{classid},#{adduser},#{title},#{begintime},#{endtime})
+ </insert>
+
+<delete id="deleteBactch" >  
+    delete from pic where guid in 
+     <foreach collection="array" index="index" item="item" open="(" separator="," close=")">    
+            #{item}
+    </foreach>
+</delete>
+
+</mapper>   

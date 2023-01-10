@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inch.rest.mapper.StatisticsMapper" >
+
+	<!--INNER JOIN dic t on w.type=t.guid-->
+	<select id="queryByPerson" resultType="StatisticsModel"  parameterType="Object">
+		select
+		u.name cname,
+		sum(CASE when score=5 then 1 else 0 end)   satisfy2,
+		sum(CASE when score=4 then 1 else 0 end)   satisfy1,
+		sum(CASE when score=3 then 1 else 0 end)   satisfy,
+		sum(CASE when score=2 then 1 else 0 end)   basic,
+		sum(CASE when score=1 then 1 else 0 end)   notsatisfy,
+		sum(CASE when score=0 then 1 else 0 end)   no
+		from evaluate e
+		INNER JOIN sys_user u on u.guid=e.userid
+		INNER JOIN window w on e.winid=w.guid
+
+		where 1=1
+		<if test="starttime!=null and starttime !=''">
+			and e.addtime >= #{starttime}
+		</if>
+		<if test="endtime!=null and endtime !=''">
+			and #{endtime} >= e.addtime
+		</if>
+		<if test="orgid>0">
+			and e.orgid=#{orgid}
+		</if>
+
+		group by u.guid,u.name
+		ORDER BY u.name
+</select>
+
+	<select id="queryByDayTotal"  resultType="StatisticsModel" parameterType="Object">
+	    <include refid="Example_SEL_SQL"/>  from evaluate e
+		where 1=1
+		<include refid="Example_where_SQL"/>
+	</select>
+
+	<select id="queryByDayType"  resultType="StatisticsModel" parameterType="Object">
+		select t.name typename,count(e.score) cnt
+		from dic t
+		left join num_info_v v on t.guid=v.type
+		LEFT JOIN evaluate e ON v.guid = e.nguid
+		where 1=1
+		<include refid="Example_where_SQL"/>
+		group by t.name
+	</select>
+
+	<sql id="Example_SEL_SQL">
+		select
+		sum(CASE when score=5 then 1 else 0 end)   satisfy2,
+		sum(CASE when score=4 then 1 else 0 end)   satisfy1,
+		sum(CASE when score=3 then 1 else 0 end)   satisfy,
+		sum(CASE when score=2 then 1 else 0 end)   basic,
+		sum(CASE when score=1 then 1 else 0 end)   notsatisfy,
+		sum(CASE when score=0 then 1 else 0 end)   no
+	</sql>
+
+	<sql id="Example_where_SQL">
+		<if test="starttime!=null and starttime !=''">
+			and e.addtime >=#{starttime}
+		</if>
+		<if test="endtime!=null and endtime !=''">
+			and #{endtime}>=e.addtime
+		</if>
+		<if test="orgid>0">
+			and e.orgid=#{orgid}
+		</if>
+		<if test="score > 0">
+			AND e.score = #{score}
+		</if>
+	</sql>
+
+	<select id="queryByToday"  resultType="StatisticsModel" parameterType="Object">
+		<include refid="Example_SEL_SQL"/> ,'1' flag from evaluate e
+		where to_days(e.addtime) = to_days(now())
+		<if test="orgid>0">
+			and e.orgid=#{orgid}
+		</if>
+	</select>
+
+	<select id="queryWaitPerson" resultType="map" >
+		select d.name,count(n.type) cnt,d.guid type from dic d
+		left JOIN num_info n on n.type=d.guid and n.isused=0
+		where n.orgid=#{orgid}
+		GROUP BY d.name,d.guid;
+	</select>
+
+	<select id="getWorkPerson" resultType="map" parameterType="Object">
+		select guid,name,pic from sys_user where guid=#{guid}
+	</select>
+
+	<select id="getNotSatisfy" resultType="map">
+		select u.name,u.pic,'服务评价不满意' msg,w.name winname, DATE_FORMAT(e.addtime ,'%H:%i') addtime
+		from evaluate e
+		INNER JOIN sys_user u on e.userid=u.guid
+		left join window w on e.winid=w.guid
+		where e.score=1 and to_days(e.addtime) = to_days(now())
+		order by e.addtime desc
+	</select>
+	
+	<select id="getEvaluate" resultType="map">
+		select u.name,u.pic,t.cardno,t.cname,w.guid,e.id,
+		case when e.score=1 then '非常不满意' when e.score=2 then '不满意' when e.score=3 then '基本满意' when e.score=4 then '满意' when e.score=5 then '非常满意' else '未评价' end star,
+		e.num,w.name winname,
+		date_format(e.addtime, '%Y-%m-%d %H:%i:%S') addtime2,
+		date_format(e.addtime, '%m-%d %H:%i') addtime
+		from evaluate e
+		INNER JOIN sys_user u on e.userid=u.guid
+		LEFT JOIN window w on e.winid=w.guid
+		LEFT JOIN (
+			select guid,cardno,cname from num_info
+			union all
+			select guid,cardno,cname from num_info_all
+		) t on e.nguid= t.guid
+		where 1=1
+		<include refid="Example_where_SQL"/>
+		ORDER BY e.addtime desc
+	</select>
+
+</mapper>   

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inch.mapper.ExamMapper" > 
+
+<!-- 新增用户-->  
+<insert id="add" parameterType="Object"  useGeneratedKeys="true" keyProperty="id" >
+
+  insert into sys_user (guid,username,password,name,state,addtime,adduser,headteacher,classids,schoolid)
+  select UUID(),#{username},#{password},#{name},#{state},now(),#{adduser},#{headteacher},#{schoolids},#{schoolid}
+  from sys_user where not exists (select username from sys_user where username=#{username}) limit 1
+</insert>
+
+
+<!-- 获取用户学校对应关系 -->
+<select id="getUserSchoolRel" parameterType="Object" resultType="String">
+	select classid  from user_school where uid = #{id}
+</select>
+
+<!-- 删除用户学校对应关系 -->
+<delete id="deleteUserSchoolRel" parameterType="Object">
+	delete  from user_school where uid = #{id}
+</delete>
+
+<!-- 批量插入用户对应的学校关系 -->
+<insert id="insertUserSchoolBatch" parameterType="ArrayList">  
+    insert into user_school (guid,uid,classid,addtime)  
+    values  
+    <foreach collection="list" item="obj" index="index" separator="," >  
+       (UUID(),#{obj.id},#{obj.classid},now())  
+    </foreach>  
+</insert>
+
+<!-- 获取所有父节点 -->
+<select id="getAllParent" parameterType="Object" resultType="SchoolModel" >
+	select * From school where isdel=0  and FIND_IN_SET(id, getParentList(#{id}))
+</select>
+</mapper>   

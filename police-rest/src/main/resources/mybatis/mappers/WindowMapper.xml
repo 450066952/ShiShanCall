@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inch.rest.mapper.WindowMapper" >
+
+<select id="queryByList" resultType="WindowModel"  parameterType="Object">
+	select g.*,u.name addusername,d.name typename,s.name orgname from window g
+	left join sys_user u on g.adduser=u.id
+	left join dic d on g.type=d.guid
+	left join school s on g.orgid=s.id
+	where 1=1
+
+	<if test="type !=null and type!=''">
+		and g.type=#{type}
+	</if>
+	<if test="orgid>0">
+		and g.orgid=#{orgid}
+	</if>
+
+	<if test="orgname!=null and orgname!=''">
+		and s.name like CONCAT('%',#{orgname},'%')
+	</if>
+
+	<if test="name!=null and name!=''">
+		and g.name=#{name}
+	</if>
+
+	<if test="typename!=null and typename!=''">
+		and d.name like CONCAT('%',#{typename},'%')
+	</if>
+
+	order by s.name, CAST(g.name AS SIGNED)
+</select>
+
+
+	<select id="queryByList2" resultType="WindowModel"  parameterType="Object">
+		select g.*,'' typename,s.name orgname from window g
+		left join school s on g.orgid=s.id
+		where 1=1
+		<if test="orgid !=null and orgid!=''">
+			and g.orgid=#{orgid}
+		</if>
+
+		order by CAST(g.name AS SIGNED)
+	</select>
+
+<delete id="deleteBactch" >  
+    delete from window where guid in
+     <foreach collection="array" index="index" item="item" open="(" separator="," close=")">    
+            #{item}
+    </foreach>
+</delete>
+
+<select id="queryById"  resultType="WindowModel" parameterType="Object">
+	select * from  window where guid = #{guid}
+</select>
+
+ <update id="update" parameterType="Object" >
+  	update window set name=#{name},remark=#{remark},adduser=#{adduser},type=#{type},sort=#{sort},firsttype=#{firsttype}
+  	where guid=#{guid}
+ </update>
+ 
+ 
+ <insert id="add" parameterType="Object" >
+ 	 insert into window (guid,name,remark,adduser,type,sort,orgid,firsttype)
+ 	 values (#{guid},#{name},#{remark},#{adduser},#{type},#{sort},#{orgid},#{firsttype})
+ </insert>
+
+</mapper>   

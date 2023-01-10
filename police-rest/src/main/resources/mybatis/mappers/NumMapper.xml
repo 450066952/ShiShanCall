@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inch.rest.mapper.NumInfoMapper" >
+
+	<!-- CONCAT(d.prefix,max(num)+1),-->
+	<insert id="add" parameterType="Object" >
+		<![CDATA[
+		 insert into num_info (guid,num,type,cardno,cname,orgid,allnum,childs,childname,idcard,name,ordertype,areatype)
+		 select #{guid} ,max(num)+1 ,#{type} ,#{cardno} ,#{cname} ,#{orgid} ,
+		 CONCAT(d.prefix,IF(n.num<99,LPAD(max(num)+1, 3, 0),max(num)+1) ),
+		 #{childs},#{childname},#{idcard},#{name},#{ordertype},#{areatype}
+		 from num_info n left join dic d  on n.type=d.guid
+		 where type=#{type} and n.orgid=#{orgid}  limit 1
+		]]>
+	</insert>
+
+	<insert id="addTwo" parameterType="Object" >
+		<![CDATA[
+		insert into num_info (guid,num,type,cardno,cname,orgid,allnum,childs,childname,idcard,name,ordertype,areatype)
+		select #{guid} ,max(num)+1 ,#{type} ,#{cardno} ,#{cname} ,#{orgid} ,
+			   CONCAT(d.prefix,IF(n.num<99,LPAD(max(num)+1, 3, 0),max(num)+1) ),
+			   #{childs},#{childname},#{idcard},#{name},#{ordertype},#{areatype}
+		from num_info n left join dic_code d  on n.type=d.guid
+		where type=#{type} and n.orgid=#{orgid}  limit 1
+		]]>
+	</insert>
+
+	<insert id="addOrder" parameterType="Object" >
+		<![CDATA[
+		insert into num_info (guid,num,type,cardno,cname,orgid,allnum,childs,childname,idcard,name,ordertype,areatype)
+		select #{guid} ,max(num)+1 ,#{type} ,#{cardno} ,#{cname} ,#{orgid} ,
+			   CONCAT('Y' + d.prefix,IF(n.num<99,LPAD(max(num)+1, 3, 0),max(num)+1) ),
+			   #{childs},#{childname},#{idcard},#{name},#{ordertype},#{areatype}
+		from num_info n left join dic d  on n.type=d.guid
+		where type=#{type} and n.orgid=#{orgid}  limit 1
+		]]>
+	</insert>
+
+	<insert id="addTwoOrder" parameterType="Object" >
+		<![CDATA[
+		insert into num_info (guid,num,type,cardno,cname,orgid,allnum,childs,childname,idcard,name,ordertype,areatype)
+		select #{guid} ,max(num)+1 ,#{type} ,#{cardno} ,#{cname} ,#{orgid} ,
+			   CONCAT('Y',d.prefix,IF(n.num<99,LPAD(max(num)+1, 3, 0),max(num)+1) ),
+			   #{childs},#{childname},#{idcard},#{name},#{ordertype},#{areatype}
+		from num_info n left join dic_code d  on n.type=d.guid
+		where type=#{type} and n.orgid=#{orgid}  limit 1
+		]]>
+	</insert>
+
+	<resultMap id="noticeinfo" type="NumInfoModel">
+		<result property="num" column="num"/>
+		<result property="typename" column="typename"/>
+		<result property="addtime" column="addtime"/>
+		<result property="waitcnt" column="waitcnt"/>
+		<result property="type" column="type"/>
+		<result property="orgid" column="orgid"/>
+		<collection property="infoList" column="{ntype=type,norgid=orgid}" javaType="ArrayList" select="getWinList" ></collection>
+	</resultMap>
+
+	<select id="getWinList" resultType="map" >
+		select name,type,firsttype from window where find_in_set (#{ntype},TYPE) and orgid=#{norgid}  order by CAST(name AS SIGNED)
+	</select>
+
+	<!--
+	CONCAT(d.prefix,n.num) num ,
+	CONCAT(d.prefix,IF(n.num<100,LPAD(n.num, 3, 0),n.num) ) num,
+	-->
+	<select id="queryById"  resultMap="noticeinfo" parameterType="Object">
+		<![CDATA[
+		   select
+		   allnum num ,
+		   d.name typename,n.addtime,type,n.orgid,cardno,n.guid,
+		   (
+			select count(1) from num_info m where type=#{type} and isused=0 and guid!=#{guid} and m.orgid=#{orgid}
+		   ) waitcnt
+		   from  num_info n
+		   INNER JOIN dic d on n.type=d.guid
+		   where n.guid=#{guid}
+		  ]]>
+	</select>
+
+	<select id="queryByIdTwo"  resultMap="noticeinfo" parameterType="Object">
+		<![CDATA[
+		select
+			allnum num ,
+			d.name typename,n.addtime,type,n.orgid,cardno,n.guid,
+			(
+				select count(1) from num_info m where type=#{type} and isused=0 and guid!=#{guid} and m.orgid=#{orgid}
+			) waitcnt
+		from  num_info n
+			INNER JOIN dic_code d on n.type=d.guid
+		where n.guid=#{guid}
+		]]>
+	</select>
+
+	<!--<select id="queryByList" resultType="NumInfoModel"  parameterType="Object">-->
+		<!--select g.guid,CONCAT(d.prefix,g.num) num ,g.type,g.addtime,g.isused from num_info g-->
+		<!--INNER JOIN dic d on g.type=d.guid-->
+		<!--where type=#{type} and g.orgid=#{orgid} and isused=0 order by g.num-->
+	<!--</select>-->
+
+	<select id="queryByList" resultType="NumInfoModel"  parameterType="Object">
+		select g.guid,CONCAT(d.prefix,g.num) num ,g.type,g.addtime,g.isused from num_info g
+		INNER JOIN dic d on g.type=d.guid
+		where find_in_set (d.guid,#{type})
+		and g.orgid=#{orgid} and isused=0 order by g.num
+	</select>
+
+	<!--<select id="queryNextNum"  resultType="NumInfoModel" parameterType="Object">-->
+		<!--<![CDATA[-->
+			<!--select g.guid,CONCAT(d.prefix,g.num) num ,g.type,g.addtime,g.isused,cardno,d.name typename  from  num_info g-->
+			<!--INNER JOIN dic d on g.type=d.guid-->
+			<!--where g.isused=0 and g.type=#{type} and g.orgid=#{orgid} and LENGTH(g.guid)>8-->
+			<!--order by g.num  limit 1;-->
+		<!--]]>-->
+	<!--</select>-->
+
+	<!--
+	select g.guid,CONCAT(d.prefix,g.num) num ,g.type,g.addtime,g.isused,cardno,d.name typename  from  num_info g
+			INNER JOIN dic d on g.type=d.guid
+			where g.isused=0
+			and find_in_set (g.type,#{type})
+			and g.orgid=#{orgid} and LENGTH(g.guid)>8
+			order by g.num  limit 1;
+
+	-->
+
+	<select id="queryNextNum"  resultType="NumInfoModel" parameterType="Object">
+		<![CDATA[
+
+			select g.guid,g.allnum num,g.type,g.addtime,g.isused,cardno,'' typename,g.childs
+			from  num_info g
+			inner join buss_record r on g.guid=r.pguid
+			where find_in_set (g.type,#{type})
+			and g.orgid=#{orgid} and isused=0
+			and FIND_IN_SET(r.type ,#{firsttype})
+			order by g.num  limit 1;
+		]]>
+	</select>
+
+	<select id="queryNextNum2"  resultType="NumInfoModel" parameterType="Object">
+		<![CDATA[
+
+			select g.guid,g.allnum num,g.type,g.addtime,g.isused,cardno,'' typename,g.childs,g.childname
+			from  num_info g
+			inner join buss_record r on g.guid=r.pguid
+			where find_in_set (g.type,#{type})
+			and g.orgid=#{orgid} and isused=0
+			and FIND_IN_SET(r.type ,#{firsttype})
+			order by g.addtime
+		]]>
+	</select>
+
+
+	<!--<select id="queryByList2" resultType="map"  parameterType="Object">-->
+		<!--select CONCAT(d.prefix,g.num) num from num_info g-->
+		<!--INNER JOIN dic d on g.type=d.guid-->
+		<!--where type=#{type} and g.orgid=#{orgid} and isused=0 order by g.num-->
+	<!--</select>-->
+	<!--
+	select CONCAT(d.prefix,g.num) num from num_info g
+		INNER JOIN dic d on g.type=d.guid
+		where find_in_set (g.type,#{type})
+		and g.orgid=#{orgid} and isused=0 order by g.addtime
+	-->
+
+
+	<!--
+		SELECT allnum , group_concat(typename) typename from (
+			select
+					g.allnum ,r.typename from num_info g
+					inner join buss_record r on g.guid=r.pguid
+					where find_in_set (g.type,'74fbc34d-3e57-11e9-99a4-38c986412665,76976676-3e57-11e9-99a4-38c986412786,7748f5d1-3e57-11e9-99a4-38c986414122')
+					and g.orgid=1 and isused=0
+					and FIND_IN_SET(r.type ,
+									'77ea1eac-3e57-11e9-99a4-38c986412888,7783e85c-3e57-11e9-99a4-38c986412663,77ea1eac-3e57-11e9-99a4-38c986412118,781b3879-3e57-11e9-99a4-38c986412299,77b6e064-3e57-11e9-99a4-38c986412218,783690ab-3e57-11e9-99a4-38c986417585,7853b63f-3e57-11e9-99a4-38c986413250,786ca046-3e57-11e9-99a4-38c986418510,7888003c-3e57-11e9-99a4-38c986413692,3cee810c-3e5a-11e9-99a4-38c986412ffc,78a3f1b9-3e57-11e9-99a4-38c986415225'
+			)
+		) t GROUP BY allnum
+	-->
+
+	<!--
+
+		select distinct g.allnum  num from num_info g
+		inner join buss_record r on g.guid=r.pguid
+		where find_in_set (g.type,#{type})
+		and g.orgid=#{orgid} and isused=0
+		and FIND_IN_SET(r.type ,#{firsttype})
+		order by g.addtime
+	-->
+	<select id="queryByList2" resultType="map"  parameterType="Object">
+
+		select  g.allnum num,g.childs  from num_info g
+		where find_in_set (g.type,#{type})
+		and g.orgid=#{orgid} and isused=0
+
+		<!--<if test="ids!=null">-->
+			<!--<foreach item="item" index="index" collection="ids" open="" separator="," close="">-->
+				<!--and FIND_IN_SET(#{item},g.childs)-->
+			<!--</foreach>-->
+		<!--</if>-->
+		order by g.addtime
+	</select>
+
+	<!--
+	insert into evaluate (userid,score,num,winid,nguid)
+		select  #{userid},#{score},#{num},#{winid},n.guid from  num_info n
+		INNER JOIN dic d on n.type=d.guid
+		where CONCAT(d.prefix,n.num)=#{num} limit 1
+
+	-->
+	<insert id="addEva" parameterType="Object">
+		insert into evaluate (userid,score,num,winid,nguid,orgid,name)
+		select  #{userid},#{score},#{num},#{winid},n.guid,orgid,#{name} from  num_info n
+		where n.allnum=#{num} and orgid=#{orgid} limit 1
+	</insert>
+
+	<update id="update" parameterType="Object">
+		update num_info set isused=1,winid=#{winid},winname=#{winname},userid=#{userid},edittime=now() where guid=#{guid}
+	</update>
+
+	<insert id="addSign" parameterType="Object">
+		INSERT into sign_record (guid,userid,orgid)
+		select UUID(),#{userid},#{orgid} from sign_record t
+		where not EXISTS (
+			select guid from sign_record
+			where userid= #{userid}
+			and to_days(addtime) = to_days(now())
+		) limit 1
+	</insert>
+
+	<!--判断是返回当前派出所还是所有的-->
+	<select id="getSign" resultType="map">
+		select userid,DATE_FORMAT(addtime ,'%H:%i') addtime
+		from sign_record where to_days(addtime) = to_days(now())
+		<if test='orgid>0'>
+			and orgid=#{orgid}
+		</if>
+	</select>
+
+	<insert id="copyNumData" parameterType="Object">
+		insert into num_info_all
+		select * from num_info t
+		where not EXISTS (select guid from num_info_all where guid= t.guid)
+	</insert>
+
+	<update id="updateStartNum" parameterType="Object">
+		<![CDATA[
+			delete from num_info ;
+			insert into num_info(guid,num,type,isused,orgid)
+			select SUBSTRING(guid,30),0,guid,1,orgid from dic where LENGTH (PID)=0;
+			insert into num_info(guid,num,type,isused,orgid)
+			select SUBSTRING(guid,30),0,guid,1,orgid from dic_code where LENGTH (prefix)>0;
+		]]>
+	</update>
+
+	<!--
+	select DISTINCT l.guid from lcdlist l
+		left JOIN lcd_window lw on l.guid=lw.lcdguid
+		left JOIN window w on lw.windowid=w.guid
+		where ( w.guid=#{guid} and l.model not in (1,3))
+		union all
+		select guid from lcdlist where model in (1,3) and  gradeid =(
+			select max(l.gradeid) from lcdlist l
+					left JOIN lcd_window lw on l.guid=lw.lcdguid
+					left JOIN window w on lw.windowid=w.guid
+					where ( w.guid=#{guid} )
+		)
+	-->
+
+	<!--叫号设备对应窗口  狮山-->
+	<select id="getNotifyLcd" 	parameterType="Object" resultType="String">
+		select DISTINCT l.guid from lcdlist l
+		left JOIN lcd_window lw on l.guid=lw.lcdguid
+		left JOIN window w on lw.windowid=w.guid
+		where  w.guid=#{guid}
+	</select>
+
+	<!--所有窗口都可以通知叫号设备喊号-->
+	<select id="getNotifyLcd2" 	parameterType="Object" resultType="String">
+		select DISTINCT l.guid from lcdlist l
+										left JOIN lcd_window lw on l.guid=lw.lcdguid
+										left JOIN window w on lw.windowid=w.guid
+		where ( w.guid=#{guid} and l.model not in (1,3))
+		union all
+		select guid from lcdlist where model in (1,3)  and  schoolid =(
+			select max(w.orgid) from window w  where ( w.guid=#{guid} )
+		)
+	</select>
+
+	<insert id="addMobileMsg" parameterType="Object">
+		insert into broadcasttest (mobilephone,content,returnFlag,ismgStatus,statusTime)
+		values (#{mobilephone},#{content},0,0,#{statusTime})
+	</insert>
+
+	<insert id="insertChildBus" parameterType="ArrayList">
+		insert into buss_record (type,pguid,allnum,orgid,ptype,typename)
+		values
+		<foreach collection="list" item="obj" index="index" separator="," >
+			(#{obj.type},#{obj.pguid},#{obj.allnum},#{obj.orgid},#{obj.ptype},#{obj.typename})
+		</foreach>
+	</insert>
+
+	<select id="queryHistoryInfo" parameterType="Object" resultType="NumInfoModel">
+		SELECT aa.* FROM (
+		SELECT
+		*
+		FROM
+		num_info_all
+		WHERE 1 = 1
+		<if test="idcard != null and idcard != ''">
+			AND idcard = #{idcard}
+		</if>
+		<if test="cardno != null and cardno != ''">
+			AND cardno = #{cardno}
+		</if>
+		UNION ALL
+		SELECT
+		*
+		FROM
+		num_info
+		WHERE 1 = 1
+		<if test="idcard != null and idcard != ''">
+			AND idcard = #{idcard}
+		</if>
+		<if test="cardno != null and cardno != ''">
+			AND cardno = #{cardno}
+		</if>
+		) aa
+		ORDER BY aa.addtime DESC LIMIT 1
+	</select>
+
+	<delete id="deleteNum" parameterType="Object">
+		delete from num_info where guid = #{guid};
+	</delete>
+
+</mapper>

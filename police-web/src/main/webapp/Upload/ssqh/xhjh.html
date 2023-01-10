@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="format-detection" content="telephone=no">
+		<meta name="viewport"
+			content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0,user-scalable=no">
+		<title>狮山横塘街道市民服务中心</title>
+		<link rel="stylesheet" href="./css/vant.css">
+		<style>
+			html {
+				font-size: 100px !important;
+				height: 100%;
+			}
+
+			@media only screen and (max-width: 320px) {
+				html {
+					font-size: 85.333px !important;
+				}
+			}
+
+			body {
+				background: #fff;
+				font-size: 20px;
+				margin: 0;
+				height: 100%;
+
+			}
+
+			* {
+				margin: 0px;
+				padding: 0px;
+				font-family: "PingFang SC", "Microsoft YaHei", 'Lato', Calibri, Arial, sans-serif;
+
+			}
+
+			* :not(input, textarea) {
+				-webkit-touch-callout: none;
+				-webkit-user-select: none;
+			}
+
+			li {
+				list-style: none;
+			}
+
+			#app {
+				height: 100%;
+			}
+
+			.van-tree-select {
+				height: 100% !important;
+			}
+
+			.van-cell-group {
+				width: 92%;
+				margin: 20px auto 30px;
+				box-shadow: 0 2px 15px 0 rgba(0, 0, 0, .1);
+				border-radius: 16px;
+			}
+
+			#app img {
+				width: 100%;
+				height: auto;
+				display: block;
+			}
+
+			.data_send {
+				width: 92%;
+				margin: 10px auto;
+				background: linear-gradient(to right, #5feeeb, #14c7c1);
+				box-shadow: 1px 2px 15px 0 rgba(20, 199, 193, .4);
+				height: 55px;
+				line-height: 55px;
+				color: #fff;
+				font-size: 16px;
+				border-radius: 8px;
+				display: block;
+				text-align: center;
+				font-weight: bold;
+				border: 0 none;
+			}
+
+			#btn_send {
+				text-align: center;
+				width: 280px;
+				/*  */
+				display: block;
+				position: absolute;
+				top: 230px;
+				left: 50%;
+				margin-left: -140px;
+				background: linear-gradient(to right, #5feeeb, #14c7c1);
+				box-shadow: 1px 2px 15px 0 rgba(20, 199, 193, .4);
+				/* padding:18px 0px; */
+				height: 40px;
+				line-height: 40px;
+				border-radius: 8px;
+				color: #fff;
+				font-size: 14px;
+			}
+
+			#hasno {
+				width: 80%;
+				margin: 20px auto 30px;
+				font-size: 18px;
+			}
+
+			#hasno ul {
+				padding-bottom: 10px;
+				border-bottom: 1px solid #ddd;
+			}
+
+			#hasno ul li {
+				padding: 5px 0px
+			}
+
+			#hasno div:first-of-type {
+				margin-top: 20px;
+			}
+
+			#hasno ul li b.spe {
+				font-size: 26px;
+			}
+			.van-tab__text{
+				font-size:16px;
+			}
+			.van-cascader__option{
+				font-size: 16px;
+			}
+			.van-cell{
+				font-size:18px!important;
+			}
+			>>> .van-cell__title{
+				font-size:16px!important;
+			}
+			.caheader{
+				  padding:20px 20px;
+				  display:flex;
+				  justify-content: space-between;
+			}
+			.caheader h5{
+				  font-size:18px;
+				  font-weight:normal;
+			}
+			.caheader p{
+				  color:#4994df;
+				  font-size:18px;
+			}
+			[v-cloak]{
+				display:none
+			}
+		</style>
+	</head>
+
+	<body>
+		<!-- <div id='token'></div> -->
+		<section class="mui-input-group" id='app' v-cloak>
+			<img src="./ssbg.png" alt="">
+			<a href="javascript:void(0)" id="btn_send">
+				狮山横塘街道市民服务中心
+			</a>
+			<section class='van-cell-group' v-if='!hasno'>
+				<van-field v-model="fieldname" is-link readonly label="业务名称" placeholder="请选择业务" @click="show = true">
+				</van-field>
+				<van-field v-model="phone" label="手机号" type='tel' placeholder="请填写" @blur='gethis'></van-field>
+				<van-field v-model="name" label="姓名" placeholder="请填写"></van-field>
+				<van-field v-model="idcard" label="身份证号" placeholder="请填写"></van-field>
+			</section>
+
+			<button class='data_send' @click='postData' v-if='!hasno'>开始取号</button>
+			<div v-if='hasno' id='hasno'>
+				<ul>
+					<li>
+						<span>办理业务：</span><b>{{curtask.childname}}</b>
+					</li>
+					<li>
+						<span>您的号码：</span><b class='spe'>{{curtask.num}}</b>
+					</li>
+					<li>
+						<span>等候人数：</span><b>{{curtask.waitcnt}}</b>
+					</li>
+					<li>
+						<span>取号时间：</span><b>{{curtask.addtime | formatetime}}</b>
+					</li>
+				</ul>
+				<div>
+					请截图保存
+				</div>
+				<div>具体办理窗口以叫号为准</div>
+				<div>
+					过号请重新取号
+				</div>
+			</div>
+			<van-popup v-model="show" round position="bottom" closeable>
+				<div class='caheader'>
+					<p @click='backto'>返回</p>
+					<h5>请选择业务</h5>
+					<p>&nbsp;&nbsp;&nbsp;&nbsp;</p>
+				</div>
+				<van-cascader v-model="cascaderValue" @change='tabs' title="请选择业务" :show-header='showheader' :options="itemsData" @close="show = false"  #options-top="{ tabIndex }"
+					@finish="onFinish">
+				</van-cascader>
+			</van-popup>
+		</section>
+		<script src="./js/polyfill.js"></script>
+		<script src="./js/vue.min.js"></script>
+		<script src="./js/vant.min.js"></script>
+		<script src="./js/jquery.js"></script>
+		<script>
+			// 在 #app 标签下渲染一个按钮组件
+			new Vue({
+				el: '#app',
+				data: function() {
+					return {
+						curguid:'',
+						curIndex:0,
+						showheader:false,
+						curtask: {	  
+							typename: '狮山横塘街道市民服务中心',
+						},
+						hasno: false,
+						fieldValue: '',
+						parentvalue: '',
+						fieldname: '',
+						show: false,
+						cascaderValue: '',
+						itemsData: [],
+						phone: '',
+						idcard: '',
+						name: '',
+						areatype:0,
+						orgid:1
+					};
+				},
+				mounted: function() {
+					this.areatype= this.GetRequest()['areatype']
+					this.orgid = this.GetRequest()['orgid']
+					this.getlist()
+
+				},
+				filters: {
+					formatetime(val) {
+						return val.split('.0')[0]
+					}
+				},
+				methods: {
+					tabs(a,b,c){
+						
+						var guid = a['selectedOptions'][a.tabIndex-1]?a['selectedOptions'][a.tabIndex-1]['guid']:''
+						var name = a['selectedOptions'][a.tabIndex-1]?a['selectedOptions'][a.tabIndex-1]['name']:''
+						this.curguid = guid
+					},
+					backto(){
+						
+						// this.cascaderValue = this.curIndex == 0 ? '':this.curguid[this.curIndex-1]
+						this.cascaderValue =  ''	
+						this.$forceUpdate()
+					},
+					gethis(){
+						console.log(this.phone)
+						if(this.phone == '') return ;
+						var that = this 
+						this.axios('num/queryHistoryInfo', 'get',{cardno:this.phone}, function(res, a) {
+							console.log(res, a)
+							if(res.data){
+								that.name = res.data['name']
+								that.idcard = res.data['idcard']
+							}
+						
+						})
+					},
+					GetRequest() {
+						var url = location.href; 
+					
+						var theRequest = new Object();
+						if (url.indexOf("?") != -1) {
+							var str = url.split("?")[1].replace(/#/g,'')
+							strs = str.split("&");
+							for (var i = 0; i < strs.length; i++) {
+								theRequest[strs[i].split("=")[0]] = decodeURI(strs[i].split("=")[1]);
+							}
+						}
+						return theRequest;
+					},
+					postData() {
+						var that = this
+						var param = {
+							type: this.parentvalue,
+							childname: this.fieldname,
+							childs: this.fieldValue,
+							orgid: this.orgid,
+							cardno: this.phone,
+							idcard: this.idcard,
+							name: this.name,
+							ordertype:2,
+							areatype:this.areatype,
+							
+						}
+						if (this.fieldname == '') {
+							vant.Toast('请选择要办理的业务')
+							return false;
+						}
+						if (this.name == '') {
+							vant.Toast('请输入姓名')
+							return false;
+						}
+						if(this.phone.length!=11){
+							vant.Toast('请确认手机号是否正确')
+							return false;
+						}
+						if (!this.check_id_card(this.idcard)) {
+							vant.Toast('请检查身份证号！')
+							return false
+						}
+						console.log(param)
+						this.axios('num/save.do', 'post', param, function(res, a) {
+							console.log(res, a)
+							if (res.success) {
+								that.curtask = res.data
+								that.hasno = true
+							} else {
+								vant.Toast(res.msg)
+							}
+
+						})
+					},
+					onFinish(e) {
+
+						var _name = e.selectedOptions[e.selectedOptions.length - 1]
+						var _parent = e.selectedOptions[e.selectedOptions.length - 2] ? e.selectedOptions[e.selectedOptions.length - 2] : e.selectedOptions[e.selectedOptions.length - 1]
+						console.log(_name, _parent)
+						this.parentvalue = _parent['value']
+						this.fieldname = _name['name']
+						this.fieldValue = _name['value']
+						this.show = false
+					},
+
+					getlist() {
+						var that = this
+
+						this.axios("sysDic/getDicInfo", 'get', {orgid:this.orgid}, function(a, res) {
+						
+	
+		
+							var codes = this.code = a.code
+							var detial = this.detial = a.detial.filter(function(val,index){
+								return val['status']!=2
+							})
+
+							codes.map(function(val, index) {
+								val['children'] = []
+								val['value'] = val['guid']
+								val['text'] = val['name']
+								detial.map(function(dl, dindex) {
+									dl['text'] = dl['name']
+									dl['value'] = dl['guid']
+									if (val['rootid'] == dl['rootid'] && dl['pid'] == '') {
+										val['children'].push(dl)
+									}
+								})
+							})
+							codes.map(function(v, i) {
+								v['children'].map(function(vc, vi) {
+									vc['children'] = []
+									detial.map(function(dl, dindex) {
+
+										if (vc['guid'] == dl['pid']) {
+											vc['children'].push(dl)
+										}
+									})
+									if(vc['children'].length == 0){
+										delete vc['children']
+									}
+								})
+							
+							})
+							that.itemsData = codes
+							console.log(codes)
+
+						})
+
+
+					},
+
+					axios: function(url, type, param, callBack) {
+						// var baseurl = '/api/'+url
+						// var baseurl = 'http://223.112.126.90:8088/police-rest/'+url
+						var baseurl = 'http://192.168.1.116:8088/police-rest/'+url
+						$.ajax({
+							url: baseurl,
+							type: type,
+							data: param,
+							success: function(res) {
+								callBack(res)
+							}
+						})
+					},
+					check_id_card(code) {
+						code = code.toUpperCase();
+
+						// 前2位城市码
+						let city = {
+							11: "北京",
+							12: "天津",
+							13: "河北",
+							14: "山西",
+							15: "内蒙古",
+							21: "辽宁",
+							22: "吉林",
+							23: "黑龙江",
+							31: "上海",
+							32: "江苏",
+							33: "浙江",
+							34: "安徽",
+							35: "福建",
+							36: "江西",
+							37: "山东",
+							41: "河南",
+							42: "湖北",
+							43: "湖南",
+							44: "广东",
+							45: "广西",
+							46: "海南",
+							50: "重庆",
+							51: "四川",
+							52: "贵州",
+							53: "云南",
+							54: "西藏",
+							61: "陕西",
+							62: "甘肃",
+							63: "青海",
+							64: "宁夏",
+							65: "新疆",
+							71: "台湾",
+							81: "香港",
+							82: "澳门",
+							91: "国外 "
+						};
+						// 加权因子
+						let factor = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2];
+						// 校验位
+						let parity = [1, 0, 'X', 9, 8, 7, 6, 5, 4, 3, 2];
+						// 身份证简单正则
+						let Reg = /^\d{6}(18|19|20)?\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/;
+						// 身份证号码数组
+						let arr_code = code.split('');
+
+						// 校验编码为空，简单正则，城市编码
+						if (!code || !Reg.test(code) || !city[code.substr(0, 2)] || code.length !== 18) {
+							return false;
+						}
+
+						// 校验18位身份证需要验证最后一位校验位
+						//∑(ai×Wi)(mod 11)
+						let sum = 0;
+						for (let i = 0; i < 17; i++) {
+							sum += arr_code[i] * factor[i];
+						}
+						if (parity[sum % 11] != arr_code[17]) {
+							return false;
+						}
+
+						return true;
+					},
+
+				}
+
+			});
+
+			// 调用函数组件，弹出一个 Toast
+			// vant.Toast('提示');
+		</script>
+	</body>
+
+</html>

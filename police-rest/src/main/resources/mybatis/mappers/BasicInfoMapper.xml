@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inch.rest.mapper.BasicInfoMapper" >
+
+<select id="queryById"  resultType="BasicInfoModel" parameterType="Object">
+	select * from basic_info limit 1
+</select>
+
+<update id="update" parameterType="Object" >
+	update basic_info set name_cn=#{name_cn},name_en=#{name_en},welcome=#{welcome},qrcode=#{qrcode},
+	tel=#{tel} where guid=#{guid}
+</update>
+
+<insert id="add" parameterType="Object" >
+ 	 insert into basic_info (guid,name_cn,name_en,welcome,tel,qrcode)
+ 	 values (#{guid},#{name_cn},#{name_en},#{welcome},#{tel},#{qrcode})
+ </insert>
+
+</mapper>   

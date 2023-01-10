@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inch.rest.mapper.SchoolMapper" > 
+
+<!-- 学校 -->
+<select id="queryByList" resultType="SchoolModel"  parameterType="Object">
+	<!-- select s.*,(select count(1) cnt from school where pid=s.id) childcnt,
+	s.name text from school s where isdel=0  -->
+	
+	select s.id,s.pid ,s.name text from school s where isdel=0 
+	
+	<if test="name != null and name != ''" >
+	    and name like  CONCAT('%',#{name},'%')
+	</if>
+	<if test="pid>-1">
+		and pid=#{pid}
+	</if>
+	
+	<if test="ids!=null"><!-- in 查询 -->
+			and id in 
+		    <foreach item="item" index="index" collection="ids" open="(" separator="," close=")">  
+			 	#{item}  
+			</foreach>
+	</if>
+	order by sortby
+</select>
+
+<select id="queryById"  resultType="SchoolModel" parameterType="Object">
+	select * from school where id = #{id}
+</select>
+
+
+<!-- 查询条件 -->
+<sql id="Example_Where_Clause">
+where 1=1
+<trim  suffixOverrides="," >
+	<if test="id>0" >
+	     and id = #{id}
+	</if>
+
+	<if test="rootid != null and rootid != ''" >
+	     and rootid = #{rootid}
+	</if>
+	
+	<if test="ids!=null"><!-- in 查询 -->
+			and id in 
+		    <foreach item="item" index="index" collection="ids" open="(" separator="," close=")">  
+			 	#{item}  
+			</foreach>
+	</if>
+	
+	<if test="pid>-1"><!-- in 查询 -->
+			and pid = #{pid} 
+	</if>
+	
+	and isdel=0
+</trim>
+</sql>
+
+<!--字典是否存在子节点-->
+<select id="isChildCnt" resultType="java.lang.Integer"  parameterType="Object">
+	select count(1) from school 
+	<include refid="Example_Where_Clause"/>
+	
+</select>
+
+<select id="getDicList2" resultType="SchoolModel"  parameterType="Object">
+	select  t.*,t.name text from school t 
+	<include refid="Example_Where_Clause"/>
+	order by addtime 
+</select> 
+
+<!-- 获取所有父节点 -->
+<select id="getAllParent" parameterType="Object" resultType="SchoolModel" >
+	select * From school where isdel=0  and FIND_IN_SET(id, getParentList(#{id}))
+</select>
+
+<!-- 获取所有子节点 -->
+<select id="getAllChild" parameterType="Object" resultType="SchoolModel" >
+	select s.* ,s.name text From school s where isdel=0
+
+	<!--<if test="isadmin!=1">-->
+		<!--and FIND_IN_SET(id, queryChildrenInfo(#{id}))-->
+	<!--</if>-->
+
+ 	<if test="ids!=null" ><!-- in 查询 -->
+			and id in 
+		    <foreach item="item" index="index" collection="ids" open="(" separator="," close=")">  
+			 	#{item}  
+			</foreach>
+	</if>
+	order by pid,sortby
+</select>
+
+ <update id="update" parameterType="Object" >
+  	update school set name=#{name},pid=#{pid},sortby=#{sortby},adduser=#{adduser},
+  	pic=#{pic},bgpic=#{bgpic},edittime=now() where id=#{id}
+ </update>
+
+
+ <insert id="add" parameterType="Object" useGeneratedKeys="true" keyProperty="id" >
+	 insert into school (name,pid,sortby,adduser,pic,bgpic,invitecode)
+  	 select #{name},#{pid},#{sortby},#{adduser},#{pic},#{bgpic},#{invitecode}
+     from dual
+     where not exists (select id from school where invitecode=#{invitecode} ) limit 1
+ </insert>
+ 
+ <delete id="delete" parameterType="Object">
+	update 	school set isdel=1 where id = #{id}
+</delete>
+
+<!-- 插入用户对应的学校关系(一对一) -->
+<insert id="insertUserSchoolRel" parameterType="Object">  
+    insert into user_school (guid,uid,classid)  
+    values  (UUID(),#{uid},#{classid})  
+</insert>
+
+<update id="updateSchoolCourseTime" parameterType="Object" >
+	update school set morning=#{morning},morning_show=#{morning_show},siesta_show=#{siesta_show},siesta=#{siesta} where id=#{id}
+</update>
+
+
+	<update id="updateStartNumByOrg" parameterType="Object">
+		<![CDATA[
+			delete from num_info where orgid=#{orgid} ;
+			insert into num_info(guid,num,type,isused,orgid)
+			select SUBSTRING(guid,30),0,guid,1,orgid from dic where LENGTH (PID)=0 and orgid=#{orgid};
+		]]>
+	</update>
+
+</mapper>   

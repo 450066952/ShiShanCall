@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inch.mapper.SysDicMapper" > 
+
+<!-- 字典主表 -->
+<select id="getDicCode" resultType="SysDicCodeModel"  parameterType="Object">
+	select * from t_dic_code where orgid=#{orgid}
+</select>
+
+
+
+
+
+
+
+<!--以下部分为通过rootid来查询-->
+
+<!-- 查询条件 -->
+<sql id="Example_Where_Clause">
+where 1=1
+<trim  suffixOverrides="," >
+	<if test="rootid != null and rootid != ''" >
+	     and rootid = #{rootid}
+	</if>
+	    
+	and pid = #{pid}
+</trim>
+</sql>
+
+<!-- 字典详细列表 -->
+<select id="getDicList" resultType="SysDicModel"  parameterType="Object">
+	select  t.*,t.name text from t_dic t
+	<include refid="Example_Where_Clause"/>
+	order by paixu
+</select> 
+  
+<!--字典是否存在子节点-->
+<select id="isChildCnt" resultType="java.lang.Integer"  parameterType="Object">
+	select count(1) from t_dic 
+	<include refid="Example_Where_Clause"/>
+	order by paixu
+</select>
+
+<!-- 插入记录 -->
+<insert id="add" parameterType="Object" >
+  insert into t_dic(rootid,pid,name,paixu)
+  values(#{rootid},#{pid},#{text},#{paixu})
+</insert>
+
+<!-- 根据id，修改记录-->  
+ <update id="update" parameterType="Object" >
+  update t_dic set rootid=#{rootid},pid=#{pid},name=#{text},paixu=#{paixu} where id=#{id}
+ </update>
+ 
+<!-- 根据id查询 查询企业详细信息 -->
+<select id="queryById"  resultType="SysDicModel" parameterType="Object">
+	select t.*,t.name text  from t_dic t where id = #{id}
+</select>
+
+<!-- 删除记录 -->
+<delete id="delete" parameterType="Object">
+	delete  from t_dic where id = #{id}
+</delete>
+
+</mapper>   

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inch.rest.mapper.LcdOnOffMapper" > 
+
+<select id="queryById"  resultType="LcdOnOffModel" parameterType="Object">
+	select * from lcdOnOff where schoolid = #{schoolid} limit 1
+</select>
+
+ <update id="update" parameterType="Object" >
+  	update lcdOnOff set startup=#{startup},shutdown=#{shutdown},adduser=#{adduser},addtime=now() where guid=#{guid}
+ </update>
+ 
+<delete id="delete" parameterType="Object">
+	delete 	from lcdOnOff where schoolid = #{schoolid}
+</delete>
+
+ <insert id="add" parameterType="Object" >
+ 	 insert into lcdOnOff (guid,schoolid,startup,shutdown,adduser) 
+ 	 values (#{guid},#{schoolid},#{startup},#{shutdown},#{adduser})
+ </insert>
+
+</mapper>   

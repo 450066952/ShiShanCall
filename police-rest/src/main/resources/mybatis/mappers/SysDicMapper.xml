@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inch.rest.mapper.SysDicMapper" >
+
+	<!-- 字典主表 -->
+	<select id="getDicCode" resultType="SysDicCodeModel"  parameterType="Object">
+		select * from dic_code where orgid=#{orgid} and isdel=0 order by paixu
+	</select>
+
+	<select id="getDic" resultType="SysDicModel"  parameterType="Object">
+		select * from dic where orgid=#{orgid} and isdel=0 order by paixu
+	</select>
+
+	<select id="queryByList" resultType="SysDicModel" parameterType="Object">
+		SELECT a.*, s.name AS orgname FROM dic a
+			LEFT JOIN school s ON a.orgid = s.id
+		WHERE a.isdel = 0
+
+		<if test="orgname!=null and orgname!=''">
+			and s.name like CONCAT('%',#{orgname},'%')
+		</if>
+
+		ORDER BY a.orgid,a.pid,a.paixu
+	</select>
+
+	<!-- 查询条件 -->
+	<sql id="Example_Where_Clause">
+	where isdel=0
+	<trim  suffixOverrides="," >
+		<if test="rootid != null and rootid != ''" >
+			 and rootid = #{rootid}
+		</if>
+		<if test="orgid != null and orgid != ''" >
+			and orgid = #{orgid}
+		</if>
+
+		<if test="pid != null and pid != ''" >
+			and FIND_IN_SET(pid,#{pid})
+		</if>
+		<if test="flag!=null and flag!=''">
+			<if test='flag=="2"'>
+				and LENGTH (pid)=0
+			</if>
+			<if test='flag=="3"'>
+				and LENGTH (pid)>0
+			</if>
+		</if>
+	</trim>
+	</sql>
+
+	<!-- 字典详细列表 -->
+	<select id="getDicList" resultType="SysDicModel"  parameterType="Object">
+		select  t.*,t.name text from dic t
+		<include refid="Example_Where_Clause"/>
+		order by paixu
+	</select>
+
+	<select id="getByDicId" parameterType="Object" resultType="SysDicModel">
+		SELECT * FROM dic
+		WHERE isdel = 0 AND guid = #{guid}
+	</select>
+
+	<!-- 插入记录 -->
+	<insert id="add" parameterType="Object" >
+	  insert into dic(guid, rootid, pid, name, paixu, prefix, orgid)
+	  values(#{guid}, #{rootid}, #{pid}, #{name}, #{paixu}, #{prefix}, #{orgid})
+	</insert>
+
+	 <update id="update" parameterType="Object" >
+	  update dic set rootid = #{rootid}, pid = #{pid}, name = #{name},
+	  		paixu = #{paixu}, prefix = #{prefix}, orgid = #{orgid}
+	  where guid=#{guid}
+	 </update>
+
+	<delete id="delete" parameterType="Object">
+		update dic set isdel=1 where guid = #{guid}
+	</delete>
+
+	<update id="updateGuid" parameterType="Object" >
+		UPDATE dic SET tguid=#{guid} WHERE nickname = #{name}
+	</update>
+
+	<select id="getByDicName" parameterType="Object" resultType="SysDicModel">
+		SELECT * FROM dic WHERE pid != '' AND isdel = 0 AND `name` = #{dicName}
+	</select>
+
+	<select id="getByDicName2" parameterType="Object" resultType="SysDicModel">
+		SELECT * FROM dic WHERE isdel = 0 AND nickname = #{dicName}
+	</select>
+
+	<select id="getByDicPid" parameterType="Object" resultType="SysDicModel">
+		SELECT * FROM dic WHERE isdel != 1 and pid IN
+		<foreach item="item" index="index" collection="ids" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+		ORDER BY pid,paixu;
+	</select>
+
+	<select id="getByDicCodeId" parameterType="Object" resultType="SysDicModel">
+		SELECT * FROM dic_code WHERE guid = #{type} AND isdel != 1
+	</select>
+
+	<insert id="addThings" parameterType="Object">
+		INSERT INTO dic_things(guid,`name`,sort) VALUES(#{guid}, #{name}, #{paixu})
+	</insert>
+
+	<select id="getByRootId" parameterType="Object" resultType="SysDicModel">
+		SELECT d.* FROM dic_code c INNER JOIN dic d ON c.rootid = d.rootid WHERE c.guid = #{id}
+	</select>
+
+	<select id="getByDicRootId" parameterType="Object" resultType="SysDicModel">
+		SELECT * FROM dic_code WHERE rootid = #{rootid} AND orgid = #{orgid}
+	</select>
+
+</mapper>

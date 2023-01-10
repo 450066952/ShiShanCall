@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inch.rest.mapper.SchoolNewsMapper" > 
+
+<select id="queryByList" resultType="SchoolNewsModel"  parameterType="Object">
+	select g.guid,g.title,g.addtime,u.name addusername,s.name schoolname,g.url,g.remark  from school_news g
+	left join sys_user u on g.adduser=u.id
+	left join school s on g.schoolid=s.id
+	where 1=1
+	<if test="isadmin!=1">
+		and g.schoolid=#{schoolid}
+	</if>
+	
+	order by g.addtime desc
+</select>
+
+<delete id="deleteBactch" >  
+    delete from school_news where guid in 
+     <foreach collection="array" index="index" item="item" open="(" separator="," close=")">    
+            #{item}
+    </foreach>
+</delete>
+ 
+<select id="queryById"  resultType="SchoolNewsModel" parameterType="Object">
+	select w.* from school_news w
+	where w.guid = #{guid}
+</select>
+
+ <update id="update" parameterType="Object" >
+  	update school_news set title=#{title},nr=#{nr},url=#{url},departid=#{departid},remark=#{remark},edittime=now()
+  	where guid=#{guid}
+ </update>
+
+ <insert id="add" parameterType="Object" >
+ 	 insert into school_news (guid,title,nr,schoolid,adduser,url,departid,remark)
+ 	 values (#{guid},#{title},#{nr},#{schoolid},#{adduser},#{url},#{departid},#{remark})
+ </insert>
+
+<delete id="deleteSelUserByObjId" parameterType="Object">
+	delete  from school_news_recuser where pguid = #{id}
+</delete>
+
+<insert id="insertSelUsersBatch" parameterType="ArrayList">
+	insert into school_news_recuser (guid,pguid,username)
+	values
+	<foreach collection="list" item="obj" index="index" separator="," >
+		(UUID(),#{obj.pguid},#{obj.username})
+	</foreach>
+</insert>
+
+	<select id="getSelUsers" parameterType="Object" resultType="String">
+		select username from school_news_recuser where pguid=#{pguid}
+	</select>
+ 
+</mapper>

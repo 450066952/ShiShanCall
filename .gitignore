@@ -1,0 +1,4 @@
+# Project exclude paths
+/police-common/target/
+/police-rest/target/
+/police-web/target/

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inch.rest.mapper.LcdMapper" >
+
+	<resultMap id="noticeinfo" type="LcdModel">
+		<result property="schoolname" column="schoolname"/>
+		<result property="gradename" column="gradename"/>
+		<result property="classname" column="classname"/>
+
+		<result property="guid" column="guid"/>
+		<result property="version" column="version"/>
+		<result property="addtime" column="addtime"/>
+
+		<result property="classid" column="classid"/>
+		<result property="schoolid" column="schoolid"/>
+		<result property="gradeid" column="gradeid"/>
+		<result property="model" column="model"/>
+		<result property="isvoice" column="isvoice"/>
+		<result property="winguid" column="winguid"/>
+		<result property="state" column="state"/>
+		<collection property="winList" column="{nwinguid=winguid}" javaType="ArrayList" select="getWinList" ></collection>
+	</resultMap>
+
+	<select id="getWinList" resultType="String" >
+		select name from window
+		where FIND_IN_SET(guid,#{nwinguid})
+	</select>
+
+
+<select id="queryByList" resultMap="noticeinfo"  parameterType="Object">
+	select l.*,
+	 s.name schoolname,g.name gradename,c.name classname from lcdlist l
+	 left join school s on l.schoolid=s.id
+	 left join school g on l.gradeid=g.id
+	 left join school c on l.classid=c.id
+	  where 1=1
+	<if test="name != null and name != ''" >
+	    and l.name like   CONCAT('%',#{name},'%') 
+	</if>
+	<if test="isadmin!=1">
+		and find_in_set(classid,#{classname})
+	</if>
+	
+	
+	order by l.addtime desc
+</select>
+
+<delete id="delete" parameterType="Object">
+	delete 	from lcdlist where guid = #{guid}
+</delete>
+ 
+<select id="queryById"  resultType="LcdModel" parameterType="Object">
+	select * from lcdlist where guid = #{guid}
+</select>
+
+ <update id="update" parameterType="Object" >
+  	update lcdlist set name=#{name},schoolid=#{schoolid},gradeid=#{gradeid},classid=#{classid},isvoice=#{isvoice},
+  	model=#{model},edittime=now(),winguid=#{winguid} 	where guid=#{guid}
+ </update>
+ 
+ <insert id="add" parameterType="Object" >
+ 	 insert into lcdlist (guid,name,schoolid,gradeid,classid,adduser,model,winguid,isvoice)
+ 	 select #{guid},#{name},#{schoolid},#{gradeid},#{classid},#{adduser},#{model},#{winguid},#{isvoice} from dual
+ 	 where not exists (select guid from lcdlist where guid=#{guid}) limit 1
+ </insert>
+ 
+ <select id="queryByClass"  resultType="LcdModel" parameterType="Object">
+	select * from lcdlist where guid != #{guid} and  classid=#{classid}  limit 1
+ </select>
+ 
+ <update id="regestClass" parameterType="Object" >
+  	update lcdlist set gradeid=#{gradeid},classid=#{classid},edittime=now(),model=#{model}
+  	where guid=#{guid}
+ </update>
+
+<update id="addLcdWindow" parameterType="Object">
+	DELETE  from lcd_window where lcdguid=#{lcdguid};
+	insert into lcd_window (lcdguid,windowid)
+	values
+	<foreach collection="windowids" item="item" index="index" separator=",">
+		(#{lcdguid},#{item})
+	</foreach>
+</update>
+
+	<select id="queryByListByModel"  resultType="LcdModel" parameterType="Object">
+		select * from lcdlist where model = #{model}
+	</select>
+
+
+</mapper>   

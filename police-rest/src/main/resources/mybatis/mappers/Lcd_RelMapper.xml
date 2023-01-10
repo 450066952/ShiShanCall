@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inch.rest.mapper.Lcd_RelMapper" > 
+
+<!-- 删除对应关系 -->
+<delete id="deleteLcdRel" parameterType="Object">
+	delete 	from lcd_rel where guid = #{guid}
+</delete>
+
+<!-- 批量删除屏显对应关系 -->
+<delete id="deleteBactch" >  
+    delete from lcd_rel where guid in 
+     <foreach collection="array" index="index" item="item" open="(" separator="," close=")">    
+            #{item}
+    </foreach>
+</delete>
+
+<!-- 批量插入屏显与通知等对应关系 -->
+<insert id="addLcdRelBactch" parameterType="map">  
+    insert into lcd_rel (guid,classid)  
+    values  
+    
+    <foreach collection="classids" item="item" index="index" separator=",">
+            (#{guid},#{item})
+    </foreach>
+</insert>
+
+<select id="getLcdSn"  parameterType="Object" resultType="String">
+	select guid from lcdlist  where find_in_set(classid,#{classid} )
+</select>
+
+<select id="getLcdSnBySchool"  parameterType="Object" resultType="String">
+	select guid from lcdlist  where schoolid=#{schoolid}
+</select>
+
+</mapper>  

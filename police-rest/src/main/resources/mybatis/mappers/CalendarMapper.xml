@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inch.rest.mapper.CalendarMapper" > 
+
+<select id="queryByListCalendar" resultType="CalendarModel"  parameterType="Object">
+	select id,title,startdate start,enddate end,color,'true' allDay from calendar 
+	where schoolid=#{schoolid}
+</select>
+
+<delete id="delete" parameterType="Object">
+	delete 	from calendar where id = #{id}
+</delete>
+ 
+<select id="queryById"  resultType="CalendarModel" parameterType="Object">
+	select c.*,c.startdate start,c.enddate end from calendar c where c.id = #{id}
+</select>
+
+ <update id="update" parameterType="Object" >
+  	update calendar set title=#{title},startdate=#{start},enddate=#{end},color=#{color},ison=#{ison}
+  	,schoolid=#{schoolid},adduser=#{adduser}  where id=#{id}
+ </update>
+ 
+ <insert id="add" parameterType="Object" >
+ 	 insert into calendar (title,startdate,enddate,color,ison,schoolid,adduser) 
+ 	 values (#{title},#{start},#{end},#{color},#{ison},#{schoolid},#{adduser})
+ </insert>
+
+</mapper>   

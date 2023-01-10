@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inch.rest.mapper.SysDicCodeMapper" >
+
+
+	<!-- 查询条件 -->
+	<sql id="Example_Where_Clause">
+
+	<trim  suffixOverrides="," >
+		<if test="rootid != null and rootid != ''" >
+			 and rootid = #{rootid}
+		</if>
+		<if test="orgid != null and orgid != ''" >
+			and orgid = #{orgid}
+		</if>
+	</trim>
+	</sql>
+
+	<select id="queryById"  resultType="SysDicCodeModel" parameterType="Object">
+		select * from dic_code where guid = #{guid}
+	</select>
+
+	<!-- 字典详细列表 -->
+	<select id="getDicList" resultType="SysDicCodeModel"  parameterType="Object">
+		select  t.*,t.name text from dic t
+		where  isdel=0
+		<include refid="Example_Where_Clause"/>
+		order by paixu
+	</select>
+
+	
+	<select id="queryByList" parameterType="Object" resultType="SysDicCodeModel">
+		SELECT dc.*, s.name AS orgname FROM dic_code dc LEFT JOIN school s ON dc.orgid = s.id
+		WHERE s.pid = 0 and dc.isdel=0
+		<include refid="Example_Where_Clause"/>
+		order by dc.orgid, dc.paixu
+	</select>
+
+	<select id="getById " parameterType="Object" resultType="SysDicCodeModel">
+		SELECT dc.*, s.`name` AS orgname FROM dic_code dc
+		LEFT JOIN school s ON dc.orgid = s.id
+		WHERE s.pid = 0 and dc.isdel=0
+			AND dc.guid = #{guid}
+		order by paixu
+	</select>
+
+	<insert id="add" parameterType="Object">
+		INSERT INTO dic_code (guid, name, rootid, addtime, paixu, orgid)
+		VALUES (#{guid}, #{name}, #{rootid}, #{addtime}, #{paixu}, #{orgid})
+	</insert>
+
+	<update id="update" parameterType="Object">
+		UPDATE dic_code SET rootid = #{rootid}, name = #{name}, paixu = #{paixu},
+				orgid = #{orgid}
+		WHERE guid = #{guid}
+	</update>
+
+	<delete id="delete" parameterType="Object">
+		UPDATE dic_code SET isdel = 1 WHERE guid = #{guid}
+	</delete>
+
+</mapper>   

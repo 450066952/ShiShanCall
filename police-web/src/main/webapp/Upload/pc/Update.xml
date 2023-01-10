@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--INCH 升级文件列表-->
+<UpdateFiles>
+    <File>
+        <Name>Queue.exe</Name>
+        <Size>873984</Size>
+        <RegType>NO</RegType>
+        <Version>1.0.0.6</Version>
+        <OS>ALL</OS>
+        <Dest>inch</Dest>
+        <Run>NO</Run>
+        <Time>2017-11-8</Time>
+    </File>
+    <File>
+        <Name>M.dat</Name>
+        <Size>112</Size>
+        <RegType>NO</RegType>
+        <Version>1.0.0.0</Version>
+        <OS>ALL</OS>
+        <Dest>inch</Dest>
+        <Run>NO</Run>
+        <Time>2017-11-8</Time>
+    </File>
+    <File>
+        <Name>Update.exe</Name>
+        <Size>705536</Size>
+        <RegType>NO</RegType>
+        <Version>1.0.0.0</Version>
+        <OS>ALL</OS>
+        <Dest>inch</Dest>
+        <Run>NO</Run>
+        <Time>2017-11-8</Time>
+    </File>
+</UpdateFiles>
+<!--创建文档时间：2017-11-5 16:49:02-->

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inch.rest.mapper.PicPhotoMapper" > 
+
+<select id="queryByList" resultType="GalleryPhotoModel"  parameterType="Object">
+	select p.*  from pic_Photo p 
+	where pguid=#{pguid}
+	order by p.addtime desc
+</select>
+
+<update id="delete" parameterType="Object">
+	delete from pic_Photo where guid=#{guid} 
+</update>
+ 
+<select id="queryById"  resultType="GalleryPhotoModel" parameterType="Object">
+	select * from pic_Photo where guid = #{guid}
+</select>
+
+ <update id="update" parameterType="Object" >
+  	update pic_Photo set pic=#{pic},adduser=#{adduser},describ=#{describ},
+  	edittime=now() where guid=#{guid}
+ </update>
+ 
+ <insert id="add" parameterType="Object" >
+ 	 insert into pic_Photo (guid,pguid,pic,adduser,describ) 
+ 	 values (#{guid},#{pguid},#{pic},#{adduser},#{describ})
+ </insert>
+ 
+<delete id="deleteBactch" >  
+    delete from pic_Photo where guid in 
+     <foreach collection="array" index="index" item="item" open="(" separator="," close=")">    
+            #{item}
+    </foreach>
+</delete>
+
+</mapper>   

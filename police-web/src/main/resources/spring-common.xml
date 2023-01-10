@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context" 
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd 
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd" default-autowire="byType">	
+	
+	<!-- Annotation Config -->	
+	<context:annotation-config/>
+	
+	<!-- 扫描Service -->
+	<context:component-scan base-package="com.inch.service" />
+	
+
+	<!-- ***************配置数据源************** -->
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">	
+         <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+         <property name="url" value="jdbc:mysql://localhost:3306/shishan?useUnicode=true&amp;charaterEncoding=utf-8" />
+         <property name="username" value="root" />
+         <property name="password" value="root" />
+	</bean>
+	
+	
+	
+	<!-- ***************事务配置************** -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<aop:config>  
+        <aop:advisor pointcut="execution(* com.inch.service.*.*(..))"  
+            advice-ref="txAdvice" />  
+    </aop:config>  
+  
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">  
+        <tx:attributes>  
+            <tx:method name="get*" read-only="true" />  
+            <tx:method name="query*" read-only="true" />  
+            <tx:method name="find*" read-only="true" />  
+            <tx:method name="load*" read-only="true" />
+            <tx:method name="select*" read-only="true" />  
+            <tx:method name="save*" propagation="REQUIRED" rollback-for="Exception" />
+            <tx:method name="update*" propagation="REQUIRED" rollback-for="Exception" /> 
+            <tx:method name="*" propagation="SUPPORTS" read-only="true" /> 
+        </tx:attributes>  
+    </tx:advice>  
+	
+	
+	<!-- MyBatis Sql -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+	  	<property name="configLocation" value="classpath:mybatis-config.xml"/>
+	</bean>
+	
+	<!-- 扫描mapper.java  -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer" autowire="byName">    
+	    <property name="basePackage" value="com.inch.mapper" />
+	    <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+	</bean>
+	
+	
+	 <!-- 全局异常配置 start  控制器异常处理-->  
+        
+        
+        
+   
+        <!-- 全局异常配置 end 
+        
+        <bean id="exceptionHandler" class="com.inch.exception.MyTimoutException"/> --> 
+</beans>
+

@@ -1,0 +1,81 @@
+
+.tip {
+	padding: 10px; font-size: 14px; color:rgba(255, 255, 255, 0.6);
+}
+
+.item {
+	padding: 12px;
+}
+.item label {
+	width: 100px; display: inline-block; font-size: 16px;
+}
+.item label.ta {
+	width: 350px; display: inline-block;
+}
+
+
+.inch {
+	display: block;
+	width: 100%;
+	background-color: transparent;
+	margin: 0 !important;
+	padding: 6px 6px 5px 27px;
+	font-size: 15px;
+	color:#3a3f51; /* #58666e; */
+	text-indent: 0;
+	border:0;
+	border-bottom:1px solid #cfdadd;
+	border-radius: 0;
+}
+
+.inch:hover {
+	background-color:#fafbfc;
+}
+
+.inch:focus {
+	padding: 6px 6px 4px 27px;
+	background-color:transparent;
+	color:#3a3f51;
+	border:0;
+	border-bottom:2px solid #7266ba;  /* #7266ba */
+}
+
+.has-error .inch{
+	padding: 6px 6px 4px 27px;
+	background-color:transparent;
+	color:#3a3f51;
+	border:0;
+	border-bottom:2px solid #a94442;
+}
+
+textarea {
+	min-width:100%;
+	max-width:100%;
+	font-size: 15px;
+}
+
+select {
+	appearance:none;
+    -moz-appearance:none;
+    -webkit-appearance:none;
+	border-radius: 0;
+
+	background: url("../img/arrow.png") no-repeat scroll right center transparent;
+	background-size: 12px auto;
+    /*为下拉小箭头留出一点位置，避免被文字覆盖*/
+    padding-right: 14px;
+	/*清除ie的默认选择框样式清除，隐藏下拉箭头*/
+	select::-ms-expand { display: none; }
+}
+
+.select {
+	appearance:none;
+    -moz-appearance:none;
+    -webkit-appearance:none;
+	border-radius: 0;
+
+	background: url("../img/arrow.png") no-repeat scroll right center transparent;
+	background-size: 12px auto;
+    /*为下拉小箭头留出一点位置，避免被文字覆盖*/
+    padding-right: 14px;
+}

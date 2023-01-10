@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inch.rest.mapper.SysUserMapper" > 
+
+<!-- 用于登录检查 -->
+<select id="getSysUserInfo" resultType="SysUser"  parameterType="Object">
+	select u.*,s.name schoolname from sys_user u left join school s on u.schoolid=s.id
+ 	where username=#{username} and password=#{password} and state=0  limit 1
+</select>
+
+<!-- 用于SSO登录检查 --><select id="getSysUserInfoSSO" resultType="SysUser"  parameterType="Object">
+	select u.*,s.name schoolname from sys_user u left join school s on u.schoolid=s.id
+	where username = #{userName} and state=0  limit 1
+</select>
+
+<!-- 获取用户学校对应关系 -->
+<select id="getUserSchoolRel" parameterType="Object" resultType="UserSchoolModel">
+	select classid,s.name,s.pid  from user_school u INNER JOIN school s on u.classid=s.id
+	 where u.uid = #{id}
+</select>
+
+<select id="getUserByIds" resultType="String"  parameterType="Object">
+	select username from sys_user 	where find_in_set(id,#{ids})
+</select>
+
+<!--修改密码-->  
+<update id="modifypwd" parameterType="Object" >
+	update sys_user set password=#{password} where guid=#{guid}
+</update>
+
+<!--修改密码-->  
+<update id="modifypic" parameterType="Object" >
+	update sys_user set pic=#{pic} where guid=#{guid}
+</update>
+
+<!--修改密码-->  
+<update id="modifyphone" parameterType="Object" >
+	update sys_user set tel=#{tel},mobile=#{mobile} where guid=#{guid}
+</update>
+
+<!--修改token-->  
+<update id="saveToken" parameterType="Object" >
+	update sys_user set phonetoken=#{phonetoken},phonetype=#{phonetype} where guid=#{guid}
+</update>
+
+<!--生成邀请码-->  
+<insert id="saveInvite_code" parameterType="Object" >
+
+  insert into invite_code (guid,userid,invitecode)
+  select UUID(),#{userid},#{invitecode}
+  from invite_code
+  where not exists (select guid from invite_code where invitecode=#{invitecode} or userid=#{userid}) limit 1
+</insert>
+
+<!-- ************************获取版本信息(屏显端)*************************** -->
+<select id="getVersionByPhone" resultType="VersionModel" parameterType="Object">
+	 select version,url,1 type from version v 
+	 where v.schoolid=#{schoolid} 
+	 
+	 <choose>
+	 	<when test="flag != null and flag != ''">
+	 		and v.flag=#{flag} 
+	 	</when>
+	 	<otherwise>
+	 		and v.flag=2
+	 	</otherwise>
+	 </choose>
+	 
+	 order by v.addtime desc  limit 1 
+</select>
+
+<!-- 查询系统用户列表 -->
+<select id="queryByList" resultType="SysUser" parameterType="Object">
+    select s.username,s.name,s.id,s.guid,sch.name schoolname
+    from sys_user s left join school sch on s.schoolid=sch.id
+    where s.id>1
+
+	<if test="name != null and name != ''" >
+	    and s.name like CONCAT('%',#{name},'%')
+	</if>
+	
+	<if test="isadmin!=1">
+		and s.schoolid=#{schoolid}
+	</if>
+
+	order by s.name desc
+</select>
+
+<!-- 获取当前用户可查看的班级（） -->
+<select id="getSubClass" resultType="SubClassModel" parameterType="Object" >
+	select s.classid,s1.name classname ,s2.name gradename from sys_user u 
+	INNER JOIN user_school s on u.id=s.uid 
+	inner join school s1 on s.classid=s1.id
+	INNER JOIN school s2 on s1.pid=s2.id
+	where s2.pid>0
+	
+	<if test="isadmin!=1">
+		and u.username=#{username}
+	</if>
+	
+	<if test="schoolids!=null and schoolids!=''">
+		and FIND_IN_SET(classid,#{schoolids}) 
+	</if>
+	
+	order by s2.sortby,s1.sortby
+</select>
+
+
+<!--通过班级进行推送 -->
+<select id="getPushUserByClass" resultType="SysUser" parameterType="Object">
+	<choose>
+		<when test="type==1"><!-- 教师端 -->
+			 select phonetoken,phonetype, 1 type from sys_user u 
+			 where EXISTS (SELECT guid from user_school where uid=u.id and  FIND_IN_SET(classid,#{classid}))
+		</when>
+		<when test="type==2"><!-- 家长端 -->
+			 select DISTINCT phonetoken,phonetype, 2 type  from parent_user p 
+			 INNER JOIN student t on p.unionid=t.unionid
+			 where FIND_IN_SET(t.classid,#{classid})
+		</when>
+		<otherwise><!-- 全部 -->
+			select DISTINCT phonetoken,phonetype,  type from (
+				 select phonetoken,phonetype, 1 type from sys_user u 
+				 where EXISTS (SELECT guid from user_school where uid=u.id and  FIND_IN_SET(classid,#{classid}))
+				 union all 
+				 select  phonetoken,phonetype, 2 type  from parent_user p 
+				 INNER JOIN student t on p.unionid=t.unionid
+				 where FIND_IN_SET(t.classid,#{classid})
+			) t
+		</otherwise>
+	</choose>
+</select>
+
+<!--通过学校进行推送 -->
+<select id="getPushUserBySchool" resultType="SysUser" parameterType="Object">
+	<choose>
+		<when test="type==1"><!-- 教师端 -->
+			 select phonetoken,phonetype, 1 type from sys_user u 
+			 where u.schoolid=#{schoolid}
+		</when>
+		<when test="type==2"><!-- 家长端 -->
+			 select DISTINCT phonetoken,phonetype, 2 type  from parent_user p 
+			 INNER JOIN student t on p.unionid=t.unionid
+			 where t.schoolid==#{schoolid}
+		</when>
+		<otherwise><!-- 全部 -->
+			select DISTINCT phonetoken,phonetype,  type from (
+				 select phonetoken,phonetype, 1 type from sys_user u 
+				 where u.schoolid=#{schoolid}
+				 union all 
+				 select  phonetoken,phonetype, 2 type  from parent_user p 
+				 INNER JOIN student t on p.unionid=t.unionid
+				 where t.schoolid=#{schoolid}
+			 ) t
+		</otherwise>
+	</choose>
+</select>
+
+</mapper>   

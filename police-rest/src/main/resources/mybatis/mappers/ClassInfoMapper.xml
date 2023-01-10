@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inch.rest.mapper.ClassInfoMapper" > 
+
+<select id="queryByList" resultType="ClassInfoModel"  parameterType="Object">
+	 select * from classinfo c where c.classid=#{classid}
+</select>
+
+<select id="queryByTeacher"  resultType="ClassInfoModel" parameterType="Object">
+	select c.*,u.name teacher from classinfo c inner join sys_user u on c.classid=u.headteacher
+	
+	where c.classid=#{classid} limit 1
+</select>
+
+<update id="delete" parameterType="Object">
+	delete from classinfo where guid=#{guid} 
+</update>
+ 
+<select id="queryById"  resultType="ClassInfoModel" parameterType="Object">
+	select * from classinfo where guid = #{guid}
+</select>
+
+ <update id="update" parameterType="Object" >
+  	update classinfo set monitor=#{monitor},convention=#{convention},classpic=#{classpic},
+  	goal=#{goal},adduser=#{adduser},classid=#{classid},pic=#{pic},edittime=now()
+  	where guid=#{guid}
+ </update>
+ 
+ 
+ <insert id="add" parameterType="Object" >
+ 	 insert into classinfo (guid,monitor,convention,goal,classid,adduser,pic,classpic) 
+ 	 values (#{guid},#{monitor},#{convention},#{goal},#{classid},#{adduser},#{pic},#{classpic})
+ </insert>
+
+</mapper>   

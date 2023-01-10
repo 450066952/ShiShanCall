@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inch.rest.mapper.GetInfoBySNMapper" > 
+ 
+ <!-- ************************根据设备获取通知* and n.isscreen=1************************** -->
+<select id="getNoticeBySN" resultType="NoticeModel" parameterType="Object">
+	select n.* from notice n 
+	inner join lcd_rel r on n.guid=r.guid
+	inner join lcdlist l on r.classid=l.classid
+	where l.guid=#{guid}
+		and (endtime >=date_format(now(),'%Y-%m-%d %H:%i:%s') or endtime is null or endtime ='')
+</select>
+
+
+
+<!-- ************************根据设备获取欢迎词*************************** -->
+<select id="getWelcomeBySN" resultType="WelcomeModel" parameterType="Object">
+	select n.* from welcome n 
+	inner join lcd_rel r on n.guid=r.guid
+	inner join lcdlist l on r.classid=l.classid
+	where l.guid=#{guid}
+	and (endtime >=date_format(now(),'%Y-%m-%d %H:%i:%s') or endtime is null or endtime ='')
+</select>
+
+
+<!-- ************************根据设备获取宣传（全屏滚动使用）照片*************************** -->
+<select id="getPicBySN" resultType="GalleryPhotoModel" parameterType="Object">
+	select p.guid,p.pguid,p.describ,p.addtime,g.begintime,g.endtime,p.pic 
+	from pic_photo p 
+	inner join  pic g on p.pguid=g.guid
+	inner join lcd_rel r on g.guid=r.guid
+	inner join lcdlist l on r.classid=l.classid
+	where l.guid=#{guid}
+	<!-- and (endtime >=date_format(now(),'%Y-%m-%d %H:%i:%s') or endtime is null or endtime ='') -->
+</select>
+
+<!-- ************************根据设备校园基本信息*************************** -->
+<select id="getSchoolInfoBySN" resultType="SchoolModel" parameterType="Object">
+	 select * from school s 
+	 inner join lcdlist l on s.id=l.schoolid
+	 where l.guid=#{guid} limit 1 
+</select>
+
+<!-- ************************根据设备获取视频信息*************************** -->
+<select id="getVideoNoticeBySN" resultType="VideoModel" parameterType="Object">
+	 select * from video n 
+	 inner join lcd_rel r on n.guid=r.guid
+	 inner join lcdlist l on r.classid=l.classid
+	 where l.guid=#{guid}
+	  and (endtime >=date_format(now(),'%Y-%m-%d %H:%i:%s') or endtime is null or endtime ='')
+</select>
+
+<!-- 根据欢迎词id，获取设备sn -->
+<select id="getSelDeviceSN" resultType="String" parameterType="Object">
+	select d.guid from lcd_rel l
+	inner join lcdlist d on d.classid=l.classid
+	where find_in_set(l.guid,#{ids})
+</select>
+
+<!-- 宣传册，获取设备sn -->
+<select id="getPicSelDeviceSN" resultType="String" parameterType="Object">
+
+	 select d.guid from pic_photo s 
+	 INNER JOIN pic p on s.pguid=p.guid 
+	 inner join lcd_rel l on p.guid=l.guid 
+	 INNER JOIN lcdlist d on l.classid=d.classid
+	 where find_in_set(s.guid,#{ids})
+	 
+</select>
+
+<!-- ************************获取开关机时间*************************** -->
+<select id="getOnOffTimeBySN" resultType="LcdOnOffModel" parameterType="Object">
+	 select l.* from lcdonoff l INNER JOIN lcdlist c on l.schoolid=c.schoolid
+	 where c.guid=#{guid} limit 1 
+</select>
+
+
+<!-- ************************获取开关机日程*************************** -->
+<select id="getCalendarBySN" resultType="CalendarModel" parameterType="Object">
+	<![CDATA[ 
+	select l.*,c.* from calendar l INNER JOIN lcdlist c on l.schoolid=c.schoolid
+	 where c.guid=#{guid} and l.startdate<=#{startdate} and l.enddate>=#{startdate}
+	 order by l.addtime desc  limit 1 
+	  ]]> 
+</select>
+
+<!-- ************************获取版本信息(屏显端和Pad端和PC端)*************************** -->
+<select id="getVersionBySN" resultType="VersionModel" parameterType="Object">
+	 select version,url from version v
+	 where v.flag=#{flag}
+	 order by v.addtime desc  limit 1 
+</select>
+
+<!-- ************************根据设备获取年级班级*************************** -->
+<select id="getClassBySN" resultType="map" parameterType="Object">
+	select s.id,s.name text from school s where isdel=0  and pid!=0
+	
+	<choose>
+		<when test="pid!=''">
+			and pid=#{pid}
+		</when>
+		<otherwise>
+			and pid =(select max(schoolid) from lcdlist where guid=#{guid})
+		</otherwise>
+	</choose>
+	
+</select>
+
+<select id="getWindowBySN" resultType="WindowModel" parameterType="Object">
+	select w.guid,w.name,d.name typename from lcd_window lw
+	inner join lcdlist l on lw.lcdguid=l.guid
+	INNER JOIN window w on lw.windowid=w.guid
+    INNER JOIN DIC d on w.type=d.guid
+	where l.guid=#{guid}
+</select>
+
+</mapper>   

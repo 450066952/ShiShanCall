@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inch.rest.mapper.HikvisionMapper" >
+
+    <select id="queryById" parameterType="Object" resultType="HikvisionModel">
+        SELECT * FROM  hikvision WHERE proguid=#{guid}
+    </select>
+
+    <select id="getVideoByEvId" parameterType="Object" resultType="HikvisionModel">
+        SELECT *  FROM  hikvision_video WHERE evid = #{id}
+    </select>
+
+    <insert id="addVideo" parameterType="Object">
+        INSERT  INTO  hikvision_video (evid,url,addtime)
+        VALUES (#{evId},#{url},#{addtime2})
+    </insert>
+
+</mapper>  

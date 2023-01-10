@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inch.rest.mapper.NumInfoToThirdMapper">
+
+	<select id="queryNumInfo" resultType="map"  parameterType="Object">
+		SELECT
+			u.NAME operator,
+			t.cardno phoneNum,
+			t.childname itemName,
+			t.idcard cardNum,
+			t.allnum queueNo,
+			w.NAME windowCode,
+			date_format( e.addtime, '%Y-%m-%d %H:%i:%S' ) end_dtm,
+			date_format( t.addtime, '%Y-%m-%d %H:%i:%S' ) get_dtm
+		FROM
+			num_info_all t
+			LEFT JOIN evaluate e ON t.guid = e.nguid
+			INNER JOIN sys_user u ON t.userid = u.guid
+			LEFT JOIN window w ON t.winid = w.guid
+		WHERE
+			1 = 1
+			AND t.addtime >= #{startTime}
+			AND #{endTime} >= t.addtime
+			AND  cardno != ''
+			AND t.orgid = #{orgid}
+		ORDER BY
+			t.addtime
+	</select>
+
+</mapper>   

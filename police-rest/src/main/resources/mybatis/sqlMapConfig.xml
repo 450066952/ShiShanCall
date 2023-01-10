@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+<settings>
+	<setting name="cacheEnabled" value="true"/>
+</settings>
+
+  <typeAliases>
+        <typeAlias alias="SysUser" type="com.inch.model.SysUser" />
+        <typeAlias type="com.inch.model.SchoolModel" alias="SchoolModel"/>
+        <typeAlias type="com.inch.model.NoticeModel" alias="NoticeModel"/>
+        <typeAlias type="com.inch.model.WelcomeModel" alias="WelcomeModel"/>
+        <typeAlias type="com.inch.model.LcdModel" alias="LcdModel"/>
+        <typeAlias type="com.inch.model.Lcd_RelModel" alias="Lcd_RelModel"/>
+        <typeAlias type="com.inch.model.UserSchoolModel" alias="UserSchoolModel"/>
+        <typeAlias type="com.inch.model.CalendarModel" alias="CalendarModel"/>
+        <typeAlias type="com.inch.model.LcdOnOffModel" alias="LcdOnOffModel"/>
+        <typeAlias type="com.inch.model.VideoModel" alias="VideoModel"/>
+        <typeAlias type="com.inch.model.GalleryPhotoModel" alias="GalleryPhotoModel"/>
+        <typeAlias type="com.inch.model.GalleryModel" alias="GalleryModel"/>
+        <typeAlias type="com.inch.model.VersionModel" alias="VersionModel"/>
+        <typeAlias type="com.inch.model.SubClassModel" alias="SubClassModel"/>
+        <typeAlias type="com.inch.model.SysMenu" alias="SysMenu"/>
+        <typeAlias type="com.inch.model.WindowModel" alias="WindowModel"/>
+        <typeAlias type="com.inch.model.SysDicModel" alias="SysDicModel"/>
+        <typeAlias type="com.inch.model.SysDicCodeModel" alias="SysDicCodeModel"/>
+        <typeAlias type="com.inch.model.NumInfoModel" alias="NumInfoModel"/>
+        <typeAlias type="com.inch.model.StatisticsModel" alias="StatisticsModel"/>
+        <typeAlias type="com.inch.model.BasicInfoModel" alias="BasicInfoModel"/>
+        <typeAlias type="com.inch.model.BasicInfoModel" alias="BasicInfoModel"/>
+        <typeAlias type="com.inch.model.QueryModel" alias="QueryModel"/>
+        <typeAlias type="com.inch.model.SchoolNewsModel" alias="SchoolNewsModel"/>
+        <typeAlias type="com.inch.model.HikvisionModel" alias="HikvisionModel"/>
+   </typeAliases>
+	<plugins>
+	    <plugin interceptor="com.github.pagehelper.PageHelper">
+	        <property name="dialect" value="mysql"/>
+	        <property name="offsetAsPageNum" value="true"/>
+	        <property name="rowBoundsWithCount" value="true"/>
+	        <property name="pageSizeZero" value="true"/>
+	        <property name="reasonable" value="false"/>
+	        <property name="params" value="pageNum=start;pageSize=limit;"/>
+	    </plugin>
+	</plugins>
+        
+	<mappers>
+		<mapper resource="mybatis/mappers/SysUserMapper.xml"/>
+		<mapper resource="mybatis/mappers/WelcomeMapper.xml"/>
+		<mapper resource="mybatis/mappers/NoticeMapper.xml"/>
+		<mapper resource="mybatis/mappers/LcdMapper.xml"/>
+		<mapper resource="mybatis/mappers/SchoolMapper.xml"/>
+		<mapper resource="mybatis/mappers/Lcd_RelMapper.xml"/>
+		<mapper resource="mybatis/mappers/GetInfoBySNMapper.xml"/>
+		<mapper resource="mybatis/mappers/CalendarMapper.xml" />
+		<mapper resource="mybatis/mappers/LcdOnOffMapper.xml" />
+		<mapper resource="mybatis/mappers/VideoMapper.xml" />
+		<mapper resource="mybatis/mappers/PicMapper.xml"/>
+		<mapper resource="mybatis/mappers/PicPhotoMapper.xml" />
+		<mapper resource="mybatis/mappers/SysMenuMapper.xml" />
+		<mapper resource="mybatis/mappers/WindowMapper.xml" />
+		<mapper resource="mybatis/mappers/SysDicMapper.xml" />
+		<mapper resource="mybatis/mappers/SysDicCodeMapper.xml" />
+		<mapper resource="mybatis/mappers/NumMapper.xml" />
+		<mapper resource="mybatis/mappers/StatisticsMapper.xml" />
+		<mapper resource="mybatis/mappers/BasicInfoMapper.xml" />
+		<mapper resource="mybatis/mappers/WebStatisticsMapper.xml" />
+		<mapper resource="mybatis/mappers/SchoolNewsMapper.xml" />
+		<mapper resource="mybatis/mappers/HikvisionMpper.xml" />
+		<mapper resource="mybatis/mappers/NumInfoToThirdMapper.xml" />
+    </mappers>
+</configuration>

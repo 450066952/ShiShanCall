@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inch.rest.mapper.WebStatisticsMapper" >
+
+	<!--窗口办件量统计-->
+	<select id="queryByWindow" resultType="map"  parameterType="Object">
+		select count(1) cnt,e.winname,e.winid  from num_info_v e
+		where LENGTH (e.userid)>0
+		<if test="starttime!=null and starttime !=''">
+			and e.addtime >=#{starttime}
+		</if>
+		<if test="endtime!=null and endtime !=''">
+			and #{endtime}>=e.addtime
+		</if>
+		<if test="orgid>0">
+			and e.orgid=#{orgid}
+		</if>
+		GROUP BY e.winid,e.winname
+		order by cnt desc
+	</select>
+
+	<!--窗口办件明细-->
+	<select id="queryByWindowDetial" resultType="map"  parameterType="Object">
+		select d.name typename,v.allnum, v.name ,DATE_FORMAT(v.edittime,'%Y-%m-%d %H:%i') addtime from  num_info_v v
+		INNER JOIN buss_record b on v.guid=b.pguid
+		LEFT JOIN dic d on b.type=d.guid
+		where v.winid=#{id}
+		<if test="starttime!=null and starttime !=''">
+			and v.addtime >=#{starttime}
+		</if>
+		<if test="endtime!=null and endtime !=''">
+			and #{endtime}>=v.addtime
+		</if>
+		order by v.addtime desc
+	</select>
+
+
+	<!--人员办件量统计-->
+	<select id="queryByPerson" resultType="map"  parameterType="Object">
+		select u.name ,count(1) cnt,e.userid  from  num_info_v e
+		INNER JOIN buss_record b on e.guid=b.pguid
+		INNER JOIN sys_user u ON e.userid = u.guid
+		where LENGTH (e.userid)>0
+		<if test="starttime!=null and starttime !=''">
+			and e.addtime >=#{starttime}
+		</if>
+		<if test="endtime!=null and endtime !=''">
+			and #{endtime}>=e.addtime
+		</if>
+		<if test="orgid>0">
+			and e.orgid=#{orgid}
+		</if>
+		group by e.userid,e.name
+		order by cnt desc
+	</select>
+
+	<!--人员办件量明细-->
+	<select id="queryByPersonDetial" resultType="map"  parameterType="Object">
+		select d.name typename,e.allnum,e.name,DATE_FORMAT(e.edittime,'%Y-%m-%d %H:%i') addtime  from num_info_v e
+		INNER JOIN buss_record b on e.guid=b.pguid
+		LEFT JOIN dic d on b.type=d.guid
+		where e.num>99 and e.userid= #{id}
+		<if test="starttime!=null and starttime !=''">
+			and e.addtime >=#{starttime}
+		</if>
+		<if test="endtime!=null and endtime !=''">
+			and #{endtime}>=e.addtime
+		</if>
+		ORDER BY e.addtime desc
+	</select>
+
+	<!--业务办件量统计-->
+	<select id="queryByType" resultType="map"  parameterType="Object">
+		select d.name,count(1) cnt, d.guid  from num_info_v e
+		INNER JOIN buss_record b on e.guid=b.pguid
+		LEFT JOIN dic d on b.type=d.guid
+		where  LENGTH (userid)>0
+		<if test="starttime!=null and starttime !=''">
+			and e.addtime >=#{starttime}
+		</if>
+		<if test="endtime!=null and endtime !=''">
+			and #{endtime}>=e.addtime
+		</if>
+		<if test="orgid>0">
+			and e.orgid=#{orgid}
+		</if>
+		group by d.guid,d.name
+		order by cnt desc
+	</select>
+
+	<!--业务办件量明细-->
+	<select id="queryByTypeDetial" resultType="map"  parameterType="Object">
+		select  e.allnum,e.name,DATE_FORMAT(e.edittime,'%Y-%m-%d %H:%i') addtime  from num_info_v e
+		INNER JOIN buss_record b on e.guid=b.pguid
+		where b.type=#{id} and LENGTH (e.userid)>0
+		<if test="starttime!=null and starttime !=''">
+			and e.addtime >=#{starttime}
+		</if>
+		<if test="endtime!=null and endtime !=''">
+			and #{endtime}>=e.addtime
+		</if>
+		ORDER BY e.addtime desc
+	</select>
+
+	<sql id="UNION_SEL_SQL">
+		SELECT guid, num, type, addtime, isused, cardno, cname, allnum, orgid, childs, childname, idcard,
+			 winid, winname, userid, name, edittime
+		FROM num_info
+		where userid is not null
+		<if test="starttime!=null and starttime !=''">
+			and addtime >=#{starttime}
+		</if>
+		<if test="endtime!=null and endtime !=''">
+			and #{endtime}>=addtime
+		</if>
+		<if test="orgid>0">
+			and orgid=#{orgid}
+		</if>
+		union
+		SELECT guid, num, type, addtime, isused, cardno, cname, allnum, orgid, childs, childname, idcard,
+			 winid, winname, userid, name, edittime
+		FROM num_info_all
+		where userid is not null
+		<if test="starttime!=null and starttime !=''">
+			and addtime >=#{starttime}
+		</if>
+		<if test="endtime!=null and endtime !=''">
+			and #{endtime}>=addtime
+		</if>
+		<if test="orgid>0">
+			and orgid=#{orgid}
+		</if>
+	</sql>
+
+</mapper>   

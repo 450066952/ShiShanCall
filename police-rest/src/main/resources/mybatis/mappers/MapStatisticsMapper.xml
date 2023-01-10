@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inch.rest.mapper.MapStatisticsMapper" >
+
+	<!--地图显示-->
+	<select id="queryByORG" resultType="map"  parameterType="Object">
+		SELECT S.NAME,T1.ccnt,T2.pcnt,T3.TCNT ,T3.isok,s.id  from school S
+		left join (
+			SELECT count(1) ccnt ,orgid c_orgid from num_info_all e
+			where  e.addtime >=#{starttime}
+			and #{endtime}>=e.addtime
+			group by orgid
+		) T1 ON T1.c_orgid=S.ID
+		LEFT JOIN (
+			SELECT count(1) pcnt ,orgid p_orgid from num_info_all e
+			where   e.addtime >=#{pSdate}
+			and #{pEdate}>=e.addtime
+			group by orgid
+		) T2 ON  S.ID =T2.p_orgid
+		left join (
+			SELECT count(1) TCNT ,sum(isused) isok ,orgid from num_info e
+		  where num>0
+			group by orgid
+		) T3 on S.ID =T3.ORGID where s.pid=0
+	</select>
+
+</mapper>   
