@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Map;
 import com.inch.model.StatisticsModel;
 import com.inch.model.StatisticsPersonModel;
-import com.inch.model.WindowModel;
-import com.sun.xml.internal.xsom.impl.scd.Iterators;
 
 public interface StatisticsMapper {
 
@@ -18,4 +16,8 @@ public interface StatisticsMapper {
     List<Map<String, Object>> getNotSatisfy();
     Map<String,Object> getWorkPerson(Map<String,String> map);
     List<Map<String,Object>> getEvaluate(StatisticsPersonModel model);
+
+    List<Map<String, Object>> queryStatisticsToday(StatisticsModel model);
+
+    List<Map<String, Object>> queryStatisticsHistory(StatisticsModel model);
 }

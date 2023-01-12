@@ -188,4 +188,32 @@ public class StatisticsAction {
 		}
 		return null ;
 	}
+
+	/**
+	 * 大厅大数据屏显示返回数据到第三方
+	 * 获取当天取号数据
+	 * */
+	@Auth(verifyLogin = false)
+	@RequestMapping("/queryStatisticsToday")
+	public List<Map<String,Object>> queryStatisticsToday(StatisticsModel model){
+		return statisticsService.queryStatisticsToday(model);
+	}
+
+	/**
+	 * 大厅大数据屏显示返回数据到第三方
+	 * 获取历史取号数据
+	 * */
+	@Auth(verifyLogin = false)
+	@RequestMapping("/queryStatisticsHistory")
+	public List<Map<String,Object>> queryStatisticsHistory(StatisticsModel model){
+		if (StringUtils.isNotBlank(model.getStarttime())){
+			model.setStarttime(model.getStarttime() + " 00:00:00");
+		}
+
+		if (StringUtils.isNotBlank(model.getEndtime())){
+			model.setEndtime(model.getEndtime() + " 23:59:59");
+		}
+		return statisticsService.queryStatisticsHistory(model);
+	}
+
 }

@@ -266,13 +266,17 @@
 							vant.Toast('请确认手机号是否正确')
 							return false;
 						}
+						if(!this.check_id_card(this.idcard)){
+							vant.Toast('请确认身份证号是否正确')
+							return false
+						}
 						var param = {
 							type: '138d0936-6bb6-43ec-8564-69b55209bc82',
 							childname: '核发居民身份证',
 							childs: 'e7e3238d-e89d-88d5-932b-d85da570c38f',
 							orgid: this.orgid,
-							cardno: this.idcard,
-							phone: this.phone,
+							idcard: this.idcard,
+							cardno: this.phone,
 							name: this.name,
 							ordertype: 2,
 							areatype: this.areatype,
@@ -343,7 +347,7 @@
 						// var baseurl = '/police-rest/'
 						// var baseurl = '/api/'+url
 						// var baseurl = 'http://223.112.126.90:8088/police-rest/'+url
-						var baseurl = 'http://192.168.1.116:8088/police-rest/'+url
+						var baseurl = 'http://192.168.1.197:8088/police-rest/'+url
 						$.ajax({
 							url: baseurl,
 							type: type,

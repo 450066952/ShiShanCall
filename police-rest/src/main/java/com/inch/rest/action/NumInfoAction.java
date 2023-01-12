@@ -44,46 +44,46 @@ public class NumInfoAction extends BaseAction{
 		Map<String,Object> map=new HashMap<>();
 
 		//取号前先去区里平台获取该时间段是否可以取号
- 		String url = "https://www.sndzwfw.com/apijava/api/queue/get/timeNumber";
-		String itemId = bean.getChilds();
-		map.put("itemId",itemId);
-		map.put("chooseDate",CommonUtil.nowDay());
-		String json= HttpClientUtil.doPostJson(url, FastJsonUtils.toJson(map),null);
-		JSONObject jsonObject = JSONObject.parseObject(json);
-		if ("200".equals(jsonObject.getString("code"))){
-			JSONObject result = JSONObject.parseObject(jsonObject.getString("result"));
-			String item = result.getString("items");
-			List<Map> items = JSONArray.parseArray(item, Map.class);
-			if (items != null && items.size() > 0){
-				for (int i = 0; i < items.size(); i++) {
-					Map<String, String> itemValue = items.get(i);
-					String startTime = CommonUtil.nowDay() + " " + itemValue.get("startTime");
-					String endTime = CommonUtil.nowDay() + " " + itemValue.get("endTime");
-					boolean flagTime = CommonUtil.checkTime(startTime, endTime);
-					if (flagTime){
-						int preOffCount = Integer.parseInt(itemValue.get("preOffCount"));
-						if (preOffCount > 0){
-							flag = true;
-						}else{
-							model= this.failMsg("当前时间段可取号数量为0！");
-							return model;
-						}
-					}
-				}
-			}
-		}else {
-			model= this.failMsg("区里暂无此业务，取号失败！");
-			return model;
-		}
+// 		String url = "https://www.sndzwfw.com/apijava/api/queue/get/timeNumber";
+//		String itemId = bean.getChilds();
+//		map.put("itemId",itemId);
+//		map.put("chooseDate",CommonUtil.nowDay());
+//		String json= HttpClientUtil.doPostJson(url, FastJsonUtils.toJson(map),null);
+//		JSONObject jsonObject = JSONObject.parseObject(json);
+//		if ("200".equals(jsonObject.getString("code"))){
+//			JSONObject result = JSONObject.parseObject(jsonObject.getString("result"));
+//			String item = result.getString("items");
+//			List<Map> items = JSONArray.parseArray(item, Map.class);
+//			if (items != null && items.size() > 0){
+//				for (int i = 0; i < items.size(); i++) {
+//					Map<String, String> itemValue = items.get(i);
+//					String startTime = CommonUtil.nowDay() + " " + itemValue.get("startTime");
+//					String endTime = CommonUtil.nowDay() + " " + itemValue.get("endTime");
+//					boolean flagTime = CommonUtil.checkTime(startTime, endTime);
+//					if (flagTime){
+//						int preOffCount = Integer.parseInt(itemValue.get("preOffCount"));
+//						if (preOffCount > 0){
+//							flag = true;
+//						}else{
+//							model= this.failMsg("当前时间段可取号数量为0！");
+//							return model;
+//						}
+//					}
+//				}
+//			}
+//		}else {
+//			model= this.failMsg("区里暂无此业务，取号失败！");
+//			return model;
+//		}
+//
+//		if (flag){
+//			model = queryNumber(bean);
+//		}else {
+//			model= this.failMsg("当前时间段不可取号！");
+//			return model;
+//		}
 
-		if (flag){
-			model = queryNumber(bean);
-		}else {
-			model= this.failMsg("当前时间段不可取号！");
-			return model;
-		}
-
-//		model = queryNumber(bean);
+		model = queryNumber(bean);
 
 		return model;
 	}
@@ -311,6 +311,12 @@ public class NumInfoAction extends BaseAction{
 		model.setType(suser.getWintype());
 		model.setOrgid(suser.getSchoolid());
 		return  numInfoService.queryByList(model);
+	}
+
+	@Auth(verifyLogin = false)
+	@RequestMapping("/getAllNumList")
+	public List<Map<String,Object>> getAllNumList(NumInfoModel model){
+		return  numInfoService.queryByList2(model.getType(),model.getOrgid(),model.getChilds());
 	}
 
 	@Auth(verifyLogin = false)

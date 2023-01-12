@@ -53,5 +53,12 @@ public class StatisticsService {
 	public StatisticsMapper getMapper() {
 		return mapper;
 	}
-	
+
+    public List<Map<String, Object>> queryStatisticsToday(StatisticsModel model) {
+		return  getMapper().queryStatisticsToday(model);
+    }
+
+	public List<Map<String, Object>> queryStatisticsHistory(StatisticsModel model) {
+		return getMapper().queryStatisticsHistory(model);
+	}
 }
