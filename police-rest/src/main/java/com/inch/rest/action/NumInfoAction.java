@@ -16,7 +16,6 @@ import com.inch.utils.*;
 import com.socket.server.command.service.TonyCommandService;
 import com.socket.server.socket.pub.Command;
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.hssf.record.formula.functions.If;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -95,6 +94,7 @@ public class NumInfoAction extends BaseAction{
 	@Auth(verifyLogin=false)
 	@RequestMapping("/addNumber")
 	public InchModel addNumber(NumInfoModel bean) throws Exception{
+		bean.setLevel(3);
 		InchModel model = queryNumber(bean);
 		return model;
 	}
@@ -103,7 +103,6 @@ public class NumInfoAction extends BaseAction{
 	@Auth(verifyLogin=false)
 	@RequestMapping("/saveOrder")
 	public List<InchModel> saveOrder(NumInfoModel bean) throws Exception{
-		boolean pass = false;
 		Map<String,Object> map=new HashMap<>();
 		List<InchModel> inchModels = new ArrayList<>();
 		InchModel models = null;
@@ -112,7 +111,7 @@ public class NumInfoAction extends BaseAction{
 		String idcard = bean.getIdcard();
 		map.put("userCard",idcard);
 		map.put("page",1);
-		map.put("size",10);
+		map.put("size",20);
 		String json= HttpClientUtil.doPostJson(url, FastJsonUtils.toJson(map),null);
 		JSONObject jsonObject = JSONObject.parseObject(json);
 		if ("200".equals(jsonObject.getString("code"))){
@@ -124,7 +123,7 @@ public class NumInfoAction extends BaseAction{
 				for (int i = 0; i < datas.size(); i++) {
 					InchModel model = null;
 					Map<String,Object> data = datas.get(i);
-					if (Integer.parseInt(data.get("bizStatus") + "") == 0){
+					if (Integer.parseInt(data.get("status") + "") == 1){
 						//接口暂无返回
 						String idCard = data.get("userCard") + "";
 						String startTime = data.get("startTime") + "";
@@ -134,30 +133,34 @@ public class NumInfoAction extends BaseAction{
 						if (CommonUtil.checkTime2(startTime,endTime)){
 							//取号
 							String itemIdParam = data.get("itemid") + "";
+							String guid = data.get("id") + "";
 //							String dicName = data.get("taskName") + "";
 							SysDicModel modelParam = new SysDicModel();
 							modelParam.setGuid(itemIdParam);
 							SysDicModel dicModel = sysDicService.getByDicId(modelParam);
-							//二级菜单，获取dic_code获取guid作为type
-							if (StringUtils.isBlank(dicModel.getPid())){
-								SysDicModel codeModel = sysDicService.getByDicRootId(dicModel);
-								bean.setType(codeModel.getGuid());
-							}else {
-								bean.setType(dicModel.getPid());
-							}
-//							SysDicModel dicModel = sysDicService.getByDicName(dicName);
+
 							if (dicModel != null){
+								//二级菜单，获取dic_code获取guid作为type
+								if (StringUtils.isBlank(dicModel.getPid())){
+									SysDicModel codeModel = sysDicService.getByDicRootId(dicModel);
+									bean.setType(codeModel.getGuid());
+								}else {
+									bean.setType(dicModel.getPid());
+								}
+
 								bean.setChilds(dicModel.getGuid());
 								bean.setChildname(dicModel.getName());
 								bean.setOrgid(dicModel.getOrgid());
 								bean.setOrdertype(1);
 								bean.setIdcard(idCard);
+								bean.setId(guid);
 								model = queryNumberOrder(bean);
 								inchModels.add(model);
 							}else{
 								models = this.failMsg("业务不存在！");
 								inchModels.add(models);
 							}
+//							SysDicModel dicModel = sysDicService.getByDicName(dicName);
 						}else {
 							models = this.failMsg("不在预约取号时间范围！");
 							inchModels.add(models);
@@ -261,22 +264,32 @@ public class NumInfoAction extends BaseAction{
 						if (StringUtils.isNotBlank(bean.getCardno())){
 							//发送短信给取号人
 							String childname = retmodel.getChildname();
+							int waitNum = retmodel.getWaitcnt();
 							String num = retmodel.getNum();
 							String wName = "";
 							List<String> wList = retmodel.getwList();
 							if (wList!= null && wList.size() > 0){
 								for (String w : wList){
-									wName += w + ",";
+									wName += w + "，";
 								}
 
-								String content = "您等候的【"+ childname +"】业务即将开始办理，您的排队号："+ num +"，请到"+ StringUtils.substringBeforeLast(wName,",") + "号窗口办理，狮山横塘便民服务中心为您服务。";
+								String content = "您办理的【"+ childname +"】业务已经成功取号，排队号："+ num +"，办理窗口："+ StringUtils.substringBeforeLast(wName,"，") + "号，本业务等候人数：" + waitNum + "人，请注意叫号语音提示或短信通知，狮山横塘便民服务中心为您服务。";
 								//发送短信到取号人手机
 								MessageUtils.sendNorMsg(bean.getCardno(),content,"");
+
+								if (bean.getForeigns() == 1){
+									Thread.sleep(1000);
+									String content2 = "You have successfully enrolled in the waiting line for ["+ childname +"]. Your queue number is SA011. The processing window will be No. "+ StringUtils.substringBeforeLast(wName,"，") + ". There are currently " + waitNum + " people waiting for this service. Please pay attention to the voice prompt or SMS notification. Shishan Hengtang Convenience Service Center at your service.";
+									//发送短信到取号人手机
+									MessageUtils.sendNorMsg(bean.getCardno(),content2,"");
+								}
+
+
 							}
 						}
 					}
 							//通知区里平台号码已经被使用
-//							numInfoService.sandInfoToThird(bean);
+							numInfoService.sandInfoToThird(bean);
 					try {
 						numInfoService.insertChildBus(retmodel);
 					}catch (Exception e){
@@ -340,10 +353,20 @@ public class NumInfoAction extends BaseAction{
 		tonyService.sendToBigData(wintype,Command.COMMAND_SOCOAL_SEND_CALL,"");
 
 		if (StringUtils.isNotBlank(bean.getCardno())){
+
 			//发送短信给当前叫号人
 			String content = "您等候的【"+ bean.getChildname() +"】业务已经可办理，您的排队号："+ bean.getNum() +"，请到"+ bean.getWinname() + "号窗口办理，狮山横塘便民服务中心为您服务。";
 			//发送短信到取号人手机
 			MessageUtils.sendNorMsg(bean.getCardno(),content,"");
+
+			if (bean.getForeigns() == 1){
+				Thread.sleep(1000);
+				//发送短信给当前叫号人
+				String content2 = "You are waiting for the ["+ bean.getChildname() +"], your queue number: "+ bean.getNum() +", please go to window " + bean.getWinname() +", Shishan Hengtang Convenience Service Center at your service.";
+				//发送短信到取号人手机
+				MessageUtils.sendNorMsg(bean.getCardno(),content2,"");
+			}
+
 		}
 
 		return this.successData("ok",bean);

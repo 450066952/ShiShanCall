@@ -131,7 +131,11 @@ public class NumInfoService<T> extends BaseService<T> {
 		//取号成功后反馈到区平台
 		String urlNumber = "https://www.sndzwfw.com/apijava/api/queue/get/number";
 		//通过身份证号码获取用户预约信息
-		map.put("flag","2");
+		if (bean.getLevel() == 3){
+			map.put("flag","3");
+		}else{
+			map.put("flag","2");
+		}
 		map.put("userName","222");
 		map.put("userCard",bean.getIdcard());
 		map.put("itemId",bean.getChilds());
@@ -141,6 +145,7 @@ public class NumInfoService<T> extends BaseService<T> {
 		map.put("onlyCheck","1");
 		map.put("distanceFlag",false);
 		map.put("checkLocalFlag",false);
+		map.put("id",bean.getId());
 
 
 		String jsonNumber = HttpClientUtil.doPostJson(urlNumber, FastJsonUtils.toJson(map),null);

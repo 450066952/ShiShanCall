@@ -23,7 +23,7 @@
 
 			body {
 				background: #fff;
-				font-size: 16px;
+				font-size: 20px;
 				margin: 0;
 				height: 100%;
 
@@ -55,7 +55,7 @@
 
 			.van-cell-group {
 				width: 92%;
-				margin: 20px auto 30px;
+				margin: 40px auto 30px;
 				box-shadow: 0 2px 15px 0 rgba(0, 0, 0, .1);
 				border-radius: 16px;
 			}
@@ -63,6 +63,7 @@
 			#app img {
 				width: 100%;
 				height: auto;
+				margin:0 auto;
 				display: block;
 			}
 
@@ -88,7 +89,7 @@
 				/*  */
 				display: block;
 				position: absolute;
-				top: 230px;
+				top: 165px;
 				left: 50%;
 				margin-left: -140px;
 				background: linear-gradient(to right, #5feeeb, #14c7c1);
@@ -123,56 +124,118 @@
 			#hasno ul li b.spe {
 				font-size: 26px;
 			}
-			.van-tab__text{
-				font-size:16px;
-			}
-			.van-cascader__option{
+
+			.van-tab__text {
 				font-size: 16px;
 			}
-			.van-cell{
-				font-size:18px!important;
+
+			.van-cascader__option {
+				font-size: 16px;
 			}
-			>>> .van-cell__title{
-				font-size:16px!important;
+
+			.van-cell {
+				font-size: 18px !important;
+				padding:20px 16px;
 			}
-			[v-cloak]{
-				display:none
+
+			>>>.van-cell__title {
+				font-size: 16px !important;
 			}
-			 .current-level {
-			    padding: 10px 16px 0;
-			  }
-			  .caheader{
-				  padding:20px 20px;
-				  display:flex;
-				  justify-content: space-between;
-			  }
-			  .caheader h5{
-				  font-size:18px;
-				  font-weight:normal;
-			  }
-			  .caheader p{
-				  color:#4994df;
-				  font-size:18px;
-			  }
+
+			.caheader {
+				padding: 20px 20px;
+				display: flex;
+				justify-content: space-between;
+			}
+
+			.caheader h5 {
+				font-size: 18px;
+				font-weight: normal;
+			}
+
+			.caheader p {
+				color: #4994df;
+				font-size: 18px;
+			}
+			.van-cell__title{
+				position:relative;
+			}
+			.van-cell__title span{
+				position:relative;
+				top:-10px;
+			}
+			.van-cell__title p{
+				position:absolute;
+				bottom:-15px;
+				left:0px;
+				font-size:14px;
+			}
+			[v-cloak] {
+				display: none
+			}
+			.notice{
+				padding:10px 16px 10px;
+				font-size:14px;
+
+			}
 		</style>
 	</head>
 
 	<body>
 		<!-- <div id='token'></div> -->
 		<section class="mui-input-group" id='app' v-cloak>
-			<img src="./ssbg.png" alt="">
+			<img src="./ssbg2.png" alt="">
 			<a href="javascript:void(0)" id="btn_send">
 				狮山横塘便民服务中心
+				Shishan Hengtang Convenience Service Center
 			</a>
-			<section class='van-cell-group' v-if='!hasno'>
+<!--			<div class="notice">-->
+<!--				<p>请选择办理业务，填写个人信息：</p>-->
+<!--				<p>Please select the service type and fill in the personal information.</p>-->
+<!--			</div>-->
+			<!-- <section class='van-cell-group' v-if='!hasno'>
 				<van-field v-model="fieldname" is-link readonly label="业务名称" placeholder="请选择业务" @click="show = true">
 				</van-field>
 				<van-field v-model="phone" label="手机号" type='tel' placeholder="请填写" @blur='gethis'></van-field>
 				<van-field v-model="name" label="姓名" placeholder="请填写"></van-field>
 				<van-field v-model="idcard" label="身份证号" placeholder="请填写"></van-field>
+			</section> -->
+			<section class="van-cell-group">
+				<div role="button" tabindex="0" class="van-cell van-cell--clickable van-field">
+					<div class="van-cell__title van-field__label">
+						<span>业务名称</span>
+						<p>Type of service</p>
+					</div>
+					<div class="van-cell__value van-field__value" @click="show = true">
+						<div class="van-field__body"><input type="text" v-model="fieldname" readonly="readonly" placeholder="请选择业务/Please select business"
+								class="van-field__control"></div>
+					</div><i class="van-icon van-icon-arrow van-cell__right-icon">
+						<!---->
+					</i>
+				</div>
+				<div class="van-cell van-field">
+					<div class="van-cell__title van-field__label"><span>手机号</span><p>Tel No.</p></div>
+					<div class="van-cell__value van-field__value" >
+						<div class="van-field__body"><input type="tel" placeholder="请填写/Please enter" v-model="phone" @blur='gethis' class="van-field__control">
+						</div>
+					</div>
+				</div>
+				<div class="van-cell van-field">
+					<div class="van-cell__title van-field__label"><span>姓名</span><p>Name</p></div>
+					<div class="van-cell__value van-field__value">
+						<div class="van-field__body"><input type="text" placeholder="请填写/Please enter" v-model="name" class="van-field__control">
+						</div>
+					</div>
+				</div>
+				<div class="van-cell van-field">
+					<div class="van-cell__title van-field__label"><span>身份证号</span><p>ID No.</p></div>
+					<div class="van-cell__value van-field__value">
+						<div class="van-field__body"><input type="text" v-model="idcard" placeholder="请填写/Please enter" class="van-field__control">
+						</div>
+					</div>
+				</div>
 			</section>
-
-			<button class='data_send' @click='postData' v-if='!hasno'>开始取号</button>
+			<button class='data_send' @click='postData' v-if='!hasno'>开始取号/Start number retrieval</button>
 			<div v-if='hasno' id='hasno'>
 				<ul>
 					<li>
@@ -193,15 +256,14 @@
 					过号请重新取号
 				</div>
 			</div>
-			
 			<van-popup v-model="show" round position="bottom" closeable>
 				<div class='caheader'>
 					<p @click='backto'>返回</p>
 					<h5>请选择业务</h5>
 					<p>&nbsp;&nbsp;&nbsp;&nbsp;</p>
 				</div>
-				<van-cascader v-model="cascaderValue" @change='tabs' title="请选择业务" :show-header='showheader' :options="itemsData" @close="show = false"  #options-top="{ tabIndex }"
-					@finish="onFinish">
+				<van-cascader v-model="cascaderValue" @change='tabs' title="请选择业务" :show-header='showheader'
+					:options="itemsData" @close="show = false" #options-top="{ tabIndex }" @finish="onFinish">
 				</van-cascader>
 			</van-popup>
 		</section>
@@ -215,10 +277,10 @@
 				el: '#app',
 				data: function() {
 					return {
-						curguid:'',
-						curIndex:0,
-						showheader:false,
-						curtask: {	  
+						curguid: '',
+						curIndex: 0,
+						showheader: false,
+						curtask: {
 							typename: '狮山横塘街道市民服务中心',
 						},
 						hasno: false,
@@ -231,13 +293,15 @@
 						phone: '',
 						idcard: '',
 						name: '',
-						areatype:0,
-						orgid:1
+						areatype: 0,
+						orgid: 1,
+						foreigns: 0
 					};
 				},
 				mounted: function() {
-					this.areatype= this.GetRequest()['areatype']
+					this.areatype = this.GetRequest()['areatype']
 					this.orgid = this.GetRequest()['orgid']
+					this.foreigns = this.GetRequest()['foreigns']
 					this.getlist()
 
 				},
@@ -247,37 +311,41 @@
 					}
 				},
 				methods: {
-					backto(){
-						
-						// this.cascaderValue = this.curIndex == 0 ? '':this.curguid[this.curIndex-1]
-						this.cascaderValue =  ''	
-						this.$forceUpdate()
-					},
-					tabs(a,b,c){
-						
-						var guid = a['selectedOptions'][a.tabIndex-1]?a['selectedOptions'][a.tabIndex-1]['guid']:''
-						var name = a['selectedOptions'][a.tabIndex-1]?a['selectedOptions'][a.tabIndex-1]['name']:''
+					tabs(a, b, c) {
+
+						var guid = a['selectedOptions'][a.tabIndex - 1] ? a['selectedOptions'][a.tabIndex - 1]['guid'] :
+							''
+						var name = a['selectedOptions'][a.tabIndex - 1] ? a['selectedOptions'][a.tabIndex - 1]['name'] :
+							''
 						this.curguid = guid
 					},
-					gethis(){
+					backto() {
+
+						// this.cascaderValue = this.curIndex == 0 ? '':this.curguid[this.curIndex-1]
+						this.cascaderValue = ''
+						this.$forceUpdate()
+					},
+					gethis() {
 						console.log(this.phone)
-						if(this.phone == '') return ;
-						var that = this 
-						this.axios('num/queryHistoryInfo', 'get',{cardno:this.phone}, function(res, a) {
+						if (this.phone == '') return;
+						var that = this
+						this.axios('num/queryHistoryInfo', 'get', {
+							cardno: this.phone
+						}, function(res, a) {
 							console.log(res, a)
-							if(res.data){
+							if (res.data) {
 								that.name = res.data['name']
 								that.idcard = res.data['idcard']
 							}
-						
+
 						})
 					},
 					GetRequest() {
-						var url = location.href; 
-					
+						var url = location.href;
+
 						var theRequest = new Object();
 						if (url.indexOf("?") != -1) {
-							var str = url.split("?")[1].replace(/#/g,'')
+							var str = url.split("?")[1].replace(/#/g, '')
 							strs = str.split("&");
 							for (var i = 0; i < strs.length; i++) {
 								theRequest[strs[i].split("=")[0]] = decodeURI(strs[i].split("=")[1]);
@@ -295,11 +363,27 @@
 							cardno: this.phone,
 							idcard: this.idcard,
 							name: this.name,
-							ordertype:2,
-							areatype:this.areatype,
-							
+							ordertype: 2,
+							areatype: this.areatype,
+							foreigns: this.foreigns,
+
 						}
-					
+						if (this.fieldname == '') {
+							vant.Toast('请选择要办理的业务')
+							return false;
+						}
+						if (this.name == '') {
+							vant.Toast('请输入姓名')
+							return false;
+						}
+						if (this.phone.length != 11) {
+							vant.Toast('请确认手机号是否正确')
+							return false;
+						}
+						// if (!this.check_id_card(this.idcard)) {
+						// 	vant.Toast('请检查身份证号！')
+						// 	return false
+						// }
 						console.log(param)
 						this.axios('num/save.do', 'post', param, function(res, a) {
 							console.log(res, a)
@@ -313,9 +397,10 @@
 						})
 					},
 					onFinish(e) {
-						
+
 						var _name = e.selectedOptions[e.selectedOptions.length - 1]
-						var _parent = e.selectedOptions[e.selectedOptions.length - 2] ? e.selectedOptions[e.selectedOptions.length - 2] : e.selectedOptions[e.selectedOptions.length - 1]
+						var _parent = e.selectedOptions[e.selectedOptions.length - 2] ? e.selectedOptions[e
+							.selectedOptions.length - 2] : e.selectedOptions[e.selectedOptions.length - 1]
 						console.log(_name, _parent)
 						this.parentvalue = _parent['value']
 						this.fieldname = _name['name']
@@ -326,10 +411,17 @@
 					getlist() {
 						var that = this
 
-						this.axios("sysDic/getDicInfo", 'get', {orgid:this.orgid}, function(a, res) {
-						
+						this.axios("sysDic/getDicInfo", 'get', {
+							orgid: this.orgid
+						}, function(a, res) {
+
+
+
 							var codes = this.code = a.code
-							var detial = this.detial = a.detial
+							var detial = this.detial = a.detial.filter(function(val, index) {
+								return val['status'] != 2
+							})
+
 							codes.map(function(val, index) {
 								val['children'] = []
 								val['value'] = val['guid']
@@ -351,11 +443,11 @@
 											vc['children'].push(dl)
 										}
 									})
-									if(vc['children'].length == 0){
+									if (vc['children'].length == 0) {
 										delete vc['children']
 									}
 								})
-							
+
 							})
 							that.itemsData = codes
 							console.log(codes)
@@ -366,9 +458,9 @@
 					},
 
 					axios: function(url, type, param, callBack) {
-						//var baseurl = '/api/'+url
+						// var baseurl = '/api/'+url
 						// var baseurl = 'http://223.112.126.90:8088/police-rest/'+url
-						var baseurl = 'http://192.168.1.199:8088/police-rest/'+url
+						var baseurl = 'http://192.168.1.199:8088/police-rest/' + url
 						$.ajax({
 							url: baseurl,
 							type: type,

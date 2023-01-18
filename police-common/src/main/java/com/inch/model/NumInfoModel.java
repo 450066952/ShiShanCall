@@ -33,6 +33,24 @@ public class NumInfoModel extends BaseModel  {
 	private int status;
 	private String starttime;
 	private String endtime;
+	private int foreigns;
+	private String id;
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public int getForeigns() {
+		return foreigns;
+	}
+
+	public void setForeigns(int foreigns) {
+		this.foreigns = foreigns;
+	}
 
 	public int getStatus() {
 		return status;

@@ -13,10 +13,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.security.SecureRandom;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class test {
 
@@ -97,9 +97,9 @@ public class test {
                 dicModel.setName(name);
                 dicModel.setPaixu(i + 1);
                 try {
-                    sysDicService.updateGuid(name, guid);
+//                    sysDicService.updateGuid(name, guid);
 //                    sysDicService.add(dicModel);
-//                    sysDicService.addThings(dicModel);
+                    sysDicService.addThings(dicModel);
 
 //                    SysDicModel dicModel1 = sysDicService.getByDicName2(name);
 //                    if (dicModel1 == null){
@@ -185,7 +185,9 @@ public class test {
 
     @Test
     public void testMsg(){
-        String content = "您等候的【失业金申领】业务即将开始办理，您的排队号：A1003，请到3号窗口办理，狮山横塘便民服务中心为您服务。";
+        String content2 = "您办理的【横塘户口迁移审批（市内迁移）】业务已经成功取号，排队号：SA011，办理窗口：4，5号，本业务等候人数：12人，请注意叫号语音提示或短信通知，狮山横塘便民服务中心为您服务。";
+        String content = " You have successfully enrolled in the waiting line for [代开普票]. Your queue number is SA011. The processing window will be No. 4,5,6,7. There are currently 12 people waiting for this service. Please pay attention to the voice prompt or SMS notification. Shishan Hengtang Convenience Service Center at your service.";
+
         try {
             MessageUtils.sendNorMsg("18806134876",content,"");
         } catch (IOException e) {
@@ -193,5 +195,38 @@ public class test {
         }
     }
 
+    @Test
+    public void testTime(){
+        String time = "2023-01-12 00:00:00";
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = new Date();
+            for (int i = 0; i < 1318; i++) {
+                date.setTime(date.getTime() + 1000);
+                System.out.println(sdf.format(date));
+            }
+
+    }
+
+    @Test
+    public void dailyCheck(){
+        int[] id = {49653,49652,49650,49649,49593,49592,49523,48985,48984,48983,48982,48981,48980,48979,48978,48977,48975,48974,48973,48972,48971,48970,48969,48968,48967,48966,48965,48964,48963,48962,48961,48960,48956,48957,48958,48959,48955,48954,48953,48952,48951,48949,48950,48947,48856,48313,48279,48275,48274,48272,48271,48154,1};
+        for (int i = 0; i < id.length; i++) {
+            SecureRandom random = new SecureRandom();
+
+            int num = random.nextInt(100000);
+
+            String formatted = String.format("%05d", num);
+            
+            System.out.println("INSERT INTO daily_check_config_point VALUES (UUID(), 'd9c8dda7-760d-49fa-aaf8-bb2e8142b91c', '点位1', '2022-9-9 09:47:20', '校园大门', "+ id[i] +", 0, '', 0, '', 1, 3, 0, '"+ formatted +"');");
+            System.out.println("INSERT INTO daily_check_config_point VALUES (UUID(), 'd9c8dda7-760d-49fa-aaf8-bb2e8142b91c', '点位2', '2022-9-14 10:37:19', '教学楼', "+ id[i] +", 0, '', 0, '', 1, 3, 0, '"+ formatted +"');");
+            System.out.println("INSERT INTO daily_check_config_point VALUES (UUID(), 'd9c8dda7-760d-49fa-aaf8-bb2e8142b91c', '点位5', '2022-9-14 10:37:39', '行政楼', "+ id[i] +", 0, '', 0, '', 1, 3, 0, '"+ formatted +"');");
+            System.out.println("INSERT INTO daily_check_config_point VALUES (UUID(), 'd9c8dda7-760d-49fa-aaf8-bb2e8142b91c', '点位8', '2023-1-10 14:48:05', '器材室', "+ id[i] +", 0, '', 0, '', 1, 3, 0, '"+ formatted +"');");
+            System.out.println("INSERT INTO daily_check_config_point VALUES (UUID(), 'd9c8dda7-760d-49fa-aaf8-bb2e8142b91c', '点位7', '2023-1-10 14:46:33', '操场', "+ id[i] +", 0, '', 0, '', 1, 3, 0, '"+ formatted +"');");
+            System.out.println("INSERT INTO daily_check_config_point VALUES (UUID(), 'd9c8dda7-760d-49fa-aaf8-bb2e8142b91c', '点位3', '2022-9-14 10:37:27', '教学楼2', "+ id[i] +", 0, '', 0, '', 1, 3, 0, '"+ formatted +"');");
+            System.out.println("INSERT INTO daily_check_config_point VALUES (UUID(), 'd9c8dda7-760d-49fa-aaf8-bb2e8142b91c', '点位4', '2022-9-14 10:37:33', '食堂', "+ id[i] +", 0, '', 0, '', 1, 3, 0, '"+ formatted +"');");
+            System.out.println("INSERT INTO daily_check_config_point VALUES (UUID(), 'd9c8dda7-760d-49fa-aaf8-bb2e8142b91c', '点位6', '2023-1-10 14:46:20', '行政楼2', "+ id[i] +", 0, '', 0, '', 1, 3, 0, '"+ formatted +"');");
+
+        }
+    }
 
 }
