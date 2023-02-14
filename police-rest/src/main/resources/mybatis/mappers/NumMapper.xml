@@ -78,12 +78,13 @@
 		<![CDATA[
 		   select
 		   allnum num ,n.foreigns,
-		   d.name typename,n.addtime,type,n.orgid,cardno,n.guid,
+		   d.name typename,n.addtime,type,n.orgid,cardno,n.guid,d2.nickname childname,
 		   (
 			select count(1) from num_info m where type=#{type} and isused=0 and guid!=#{guid} and m.orgid=#{orgid}
 		   ) waitcnt
 		   from  num_info n
 		   INNER JOIN dic d on n.type=d.guid
+		   INNER JOIN dic d2 ON n.childs = d2.guid
 		   where n.guid=#{guid}
 		  ]]>
 	</select>
@@ -92,12 +93,13 @@
 		<![CDATA[
 		select
 			allnum num ,n.foreigns,
-			d.name typename,n.addtime,type,n.orgid,cardno,n.guid,
+			d.name typename,n.addtime,type,n.orgid,cardno,n.guid,d2.nickname childname,
 			(
 				select count(1) from num_info m where type=#{type} and isused=0 and guid!=#{guid} and m.orgid=#{orgid}
 			) waitcnt
 		from  num_info n
 			INNER JOIN dic_code d on n.type=d.guid
+			INNER JOIN dic d2 ON n.childs = d2.guid
 		where n.guid=#{guid}
 		]]>
 	</select>
@@ -149,15 +151,17 @@
 
 	<select id="queryNextNum2"  resultType="NumInfoModel" parameterType="Object">
 		<![CDATA[
-
 			select g.guid,g.allnum num,g.type,g.addtime,g.isused,cardno,'' typename,g.childs,g.childname,g.ordertype,g.areatype,g.foreigns
 			from  num_info g
 			inner join buss_record r on g.guid=r.pguid
-			where find_in_set (g.type,#{type})
+			where FIND_IN_SET (g.type,#{type})
 			and g.orgid=#{orgid} and isused=0
 			and FIND_IN_SET(r.type ,#{firsttype})
-			order by g.addtime
 		]]>
+		<if test="num !=null and num!=''">
+			and g.allnum = #{num}
+		</if>
+		order by g.addtime
 	</select>
 
 
@@ -315,7 +319,7 @@
 		*
 		FROM
 		num_info_all
-		WHERE 1 = 1
+		WHERE `name` != ''
 		<if test="idcard != null and idcard != ''">
 			AND idcard = #{idcard}
 		</if>
@@ -327,7 +331,7 @@
 		*
 		FROM
 		num_info
-		WHERE 1 = 1
+		WHERE `name` != ''
 		<if test="idcard != null and idcard != ''">
 			AND idcard = #{idcard}
 		</if>
@@ -353,5 +357,13 @@
 			</if>
 		WHERE guid = #{guid}
 	</update>
+
+	<select id="queryByGuid" parameterType="Object" resultType="NumInfoModel">
+		select * from num_info where guid = #{guid}
+	</select>
+
+	<select id="queryDicByIdCard" parameterType="Object" resultType="int">
+		SELECT count(*) FROM num_info WHERE idcard = #{idcard} AND childs = #{childs} AND TO_DAYS(addtime) = TO_DAYS(NOW())
+	</select>
 
 </mapper>

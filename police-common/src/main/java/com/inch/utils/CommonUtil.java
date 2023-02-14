@@ -147,8 +147,8 @@ public class CommonUtil {
 			dateC.setTime(date);
 			Calendar begin = Calendar.getInstance();
 			begin.setTime(b);
-			//开始时间减去15分钟
-			begin.add(Calendar.MINUTE,-15);
+			//开始时间减去30分钟
+			begin.add(Calendar.MINUTE,-30);
 			Calendar end = Calendar.getInstance();
 			end.setTime(e);
 			if (dateC.after(begin) && dateC.before(end)) {

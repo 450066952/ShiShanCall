@@ -123,13 +123,15 @@
 
 	<select id="queryStatisticsToday" parameterType="Object" resultType="map">
 		SELECT
-			i.`name` Name,i.idcard IDCardNo,IFNULL(d.nickname,c.`name`) DeptName,i.childname ServiceName,i.allnum TicketNO,
-			IFNULL(DATE_FORMAT(i.addtime,'%Y-%m-%d %H:%i:%S'),'') PrintTime,IFNULL(DATE_FORMAT(i.starttime,'%Y-%m-%d %H:%i:%S'),'') StartTime,
-			IFNULL(DATE_FORMAT(i.endtime,'%Y-%m-%d %H:%i:%S'),'') FinishedTime,i.`status` ProcessingStatus,i.winname CounterName
+			IFNULL(i.`name`,'') Name,IFNULL(i.idcard,'') IDCardNo,IFNULL(dc.`name`,c.`name`) ServiceType,IFNULL(d.nickname,'') DeptName,
+			i.childname ServiceName,i.allnum TicketNO,IFNULL(DATE_FORMAT(i.addtime,'%Y-%m-%d %H:%i:%S'),'') PrintTime,
+			IFNULL(DATE_FORMAT(i.starttime,'%Y-%m-%d %H:%i:%S'),'') StartTime,IFNULL(DATE_FORMAT(i.endtime,'%Y-%m-%d %H:%i:%S'),'') FinishedTime,
+			i.`status` ProcessingStatus,i.winname CounterName,i.orgid
 		FROM
 			num_info i
-				LEFT JOIN dic d ON i.type = d.guid
-				LEFT JOIN dic_code c ON i.type = c.guid
+			LEFT JOIN dic d ON i.type = d.guid
+			LEFT JOIN dic_code dc ON d.rootid = dc.rootid
+			LEFT JOIN dic_code c ON i.type = c.guid
 		WHERE i.num > 0
 			<if test="orgid>0">
 				and i.orgid=#{orgid}
@@ -140,13 +142,15 @@
 
 	<select id="queryStatisticsHistory" parameterType="Object" resultType="map">
 		SELECT
-			i.`name` Name,i.idcard IDCardNo,IFNULL(d.nickname,c.`name`) DeptName,i.childname ServiceName,i.allnum TicketNO,
-			IFNULL(DATE_FORMAT(i.addtime,'%Y-%m-%d %H:%i:%S'),'') PrintTime,IFNULL(DATE_FORMAT(i.starttime,'%Y-%m-%d %H:%i:%S'),'') StartTime,
-			IFNULL(DATE_FORMAT(i.endtime,'%Y-%m-%d %H:%i:%S'),'') FinishedTime,i.`status` ProcessingStatus,i.winname CounterName
+			IFNULL(i.`name`,'') Name,IFNULL(i.idcard,'') IDCardNo,IFNULL(dc.`name`,c.`name`) ServiceType,IFNULL(d.nickname,'') DeptName,
+			i.childname ServiceName,i.allnum TicketNO,IFNULL(DATE_FORMAT(i.addtime,'%Y-%m-%d %H:%i:%S'),'') PrintTime,
+			IFNULL(DATE_FORMAT(i.starttime,'%Y-%m-%d %H:%i:%S'),'') StartTime,IFNULL(DATE_FORMAT(i.endtime,'%Y-%m-%d %H:%i:%S'),'') FinishedTime,
+			i.`status` ProcessingStatus,i.winname CounterName,i.orgid
 		FROM
 			num_info_all i
-				LEFT JOIN dic d ON i.type = d.guid
-				LEFT JOIN dic_code c ON i.type = c.guid
+			LEFT JOIN dic d ON i.type = d.guid
+			LEFT JOIN dic_code dc ON d.rootid = dc.rootid
+			LEFT JOIN dic_code c ON i.type = c.guid
 		WHERE i.num > 0
 		<if test="starttime!=null and starttime !=''">
 			and i.addtime >=#{starttime}

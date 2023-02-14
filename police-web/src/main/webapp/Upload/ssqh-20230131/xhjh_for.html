@@ -138,7 +138,7 @@
 			}
 
 			.van-cell {
-				font-size: 17px !important;
+				font-size: 18px !important;
 				padding:20px 16px;
 			}
 
@@ -167,7 +167,6 @@
 			.van-cell__title span{
 				position:relative;
 				top:-10px;
-				font-size: 22px;
 			}
 			.van-cell__title p{
 				position:absolute;
@@ -353,8 +352,7 @@
 						name: '',
 						areatype: 0,
 						orgid: 1,
-						foreigns: 0,
-						isposting:false,
+						foreigns: 0
 					};
 				},
 				mounted: function() {
@@ -444,23 +442,16 @@
 						// 	return false
 						// }
 						console.log(param)
-						if(!this.isposting){
-							that.isposting = true
-							this.axios('num/save.do', 'post', param, function(res, a) {
-								console.log(res, a)
-								if (res.success) {
-									that.curtask = res.data
-									that.hasno = true
-								} else {
-									vant.Toast(res.msg)
-								}
-								setTimeout(function(){
-									that.isposting = false
-								},200)
-							})
-						}else{
-							vant.Toast('请勿重复提交数据')
-						}
+						this.axios('num/save.do', 'post', param, function(res, a) {
+							console.log(res, a)
+							if (res.success) {
+								that.curtask = res.data
+								that.hasno = true
+							} else {
+								vant.Toast(res.msg)
+							}
+
+						})
 					},
 					onFinish(e) {
 
@@ -525,8 +516,8 @@
 
 					axios: function(url, type, param, callBack) {
 						// var baseurl = '/api/'+url
-						var baseurl = 'http://223.112.126.90:8088/police-rest/'+url
-						// var baseurl = 'http://192.168.1.103:8088/police-rest/' + url
+						// var baseurl = 'http://223.112.126.90:8088/police-rest/'+url
+						var baseurl = 'http://192.168.1.103:8088/police-rest/' + url
 						$.ajax({
 							url: baseurl,
 							type: type,

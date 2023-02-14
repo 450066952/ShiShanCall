@@ -20,7 +20,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @RestController
@@ -33,6 +37,8 @@ public class NumInfoAction extends BaseAction{
 	private TonyCommandService tonyService;
 	@Autowired
 	private SysDicService<SysDicModel> sysDicService;
+
+	private final int timeLong = 30;
 
 	//取号机取号
 	@Auth(verifyLogin=false)
@@ -53,36 +59,109 @@ public class NumInfoAction extends BaseAction{
 //			JSONObject result = JSONObject.parseObject(jsonObject.getString("result"));
 //			String item = result.getString("items");
 //			List<Map> items = JSONArray.parseArray(item, Map.class);
+//			int timeAdd = 0;
+//			int j = 0;
 //			if (items != null && items.size() > 0){
 //				for (int i = 0; i < items.size(); i++) {
 //					Map<String, String> itemValue = items.get(i);
 //					String startTime = CommonUtil.nowDay() + " " + itemValue.get("startTime");
 //					String endTime = CommonUtil.nowDay() + " " + itemValue.get("endTime");
-//					boolean flagTime = CommonUtil.checkTime(startTime, endTime);
+//					boolean flagTime = this.checkTime(startTime, endTime, timeAdd);
 //					if (flagTime){
-//						int preOffCount = Integer.parseInt(itemValue.get("preOffCount"));
+//						int preOffCount = Integer.parseInt(String.valueOf(itemValue.get("offCanTakeCount")));
 //						if (preOffCount > 0){
+//							bean.setStarttime(itemValue.get("startTime"));
+//							bean.setEndtime(itemValue.get("endTime"));
+//							bean.setOrdertype(2);
 //							flag = true;
 //						}else{
-//							model= this.failMsg("当前时间段可取号数量为0！");
-//							return model;
+//							j = j + 1;
+//							timeAdd = j * timeLong;
 //						}
 //					}
 //				}
 //			}
 //		}else {
-//			model= this.failMsg("区里暂无此业务，取号失败！");
+//			model= this.failMsg("区里暂无此业务，取号失败。");
 //			return model;
 //		}
 //
 //		if (flag){
 //			model = queryNumber(bean);
 //		}else {
-//			model= this.failMsg("当前时间段不可取号！");
+//			model= this.failMsg("当前时间段不可取号。");
 //			return model;
 //		}
-
+		bean.setOrdertype(2);
 		model = queryNumber(bean);
+
+		return model;
+	}
+
+
+	/**
+	 * 临时处理身份证办理业务
+	 * 身份证办理扫码取号，区区里面验证是否有余号
+	 * */
+	@Auth(verifyLogin=false)
+	@RequestMapping("/saveSpe")
+	public InchModel saveSpe(NumInfoModel bean) throws Exception{
+		boolean flag = false;
+		InchModel model = null;
+		Map<String,Object> map=new HashMap<>();
+
+		//取号前先去区里平台获取该时间段是否可以取号
+ 		String url = "https://www.sndzwfw.com/apijava/api/queue/get/timeNumber";
+		String itemId = bean.getChilds();
+		map.put("itemId",itemId);
+		map.put("chooseDate",CommonUtil.nowDay());
+		String json= HttpClientUtil.doPostJson(url, FastJsonUtils.toJson(map),null);
+		JSONObject jsonObject = JSONObject.parseObject(json);
+		if ("200".equals(jsonObject.getString("code"))){
+			JSONObject result = JSONObject.parseObject(jsonObject.getString("result"));
+			String item = result.getString("items");
+			List<Map> items = JSONArray.parseArray(item, Map.class);
+			int timeAdd = 0;
+			int j = 0;
+			if (items != null && items.size() > 0){
+				for (int i = 0; i < items.size(); i++) {
+					Map<String, String> itemValue = items.get(i);
+					String startTime = CommonUtil.nowDay() + " " + itemValue.get("startTime");
+					String endTime = CommonUtil.nowDay() + " " + itemValue.get("endTime");
+//					boolean flagTime = CommonUtil.checkTime(startTime, endTime);
+					boolean flagTime = this.checkTime(startTime, endTime, timeAdd);
+					if (flagTime){
+						int preOffCount = Integer.parseInt(String.valueOf(itemValue.get("offCanTakeCount")));
+						if (preOffCount > 0){
+							bean.setStarttime(itemValue.get("startTime"));
+							bean.setEndtime(itemValue.get("endTime"));
+							bean.setForeigns(2);
+							bean.setOrdertype(2);
+							flag = true;
+						}else{
+							j = j + 1;
+							timeAdd = j * timeLong;
+						}
+					}
+				}
+			}
+		}else {
+			model= this.failMsg("区里暂无此业务，取号失败。");
+			return model;
+		}
+
+		if (flag){
+			int count = numInfoService.queryDicByIdCard(bean);
+			if (count > 0){
+				model= this.failMsg("您已在该时间段内取号，不可重复取号。");
+				return model;
+			}else{
+				model = queryNumber(bean);
+			}
+		}else {
+			model= this.failMsg("当前时间段不可取号。");
+			return model;
+		}
 
 		return model;
 	}
@@ -94,8 +173,17 @@ public class NumInfoAction extends BaseAction{
 	@Auth(verifyLogin=false)
 	@RequestMapping("/addNumber")
 	public InchModel addNumber(NumInfoModel bean) throws Exception{
-		bean.setLevel(3);
+		bean.setOrdertype(3);
 		InchModel model = queryNumber(bean);
+		return model;
+	}
+
+
+	@Auth(verifyLogin=false)
+	@RequestMapping("/addNumberOrder")
+	public InchModel addNumberOrder(NumInfoModel bean) throws Exception{
+		bean.setOrdertype(3);
+		InchModel model = queryNumberOrder(bean);
 		return model;
 	}
 
@@ -154,29 +242,34 @@ public class NumInfoAction extends BaseAction{
 								bean.setOrdertype(1);
 								bean.setIdcard(idCard);
 								bean.setId(guid);
+								bean.setStarttime(startTime);
+								bean.setEndtime(endTime);
+								bean.setOrdertype(1);
 								model = queryNumberOrder(bean);
 								inchModels.add(model);
 							}else{
-								models = this.failMsg("业务不存在！");
+								models = this.failMsg("业务不存在。");
 								inchModels.add(models);
 							}
 //							SysDicModel dicModel = sysDicService.getByDicName(dicName);
 						}else {
-							models = this.failMsg("不在预约取号时间范围！");
+							models = this.failMsg("不在预约取号时间范围。");
 							inchModels.add(models);
 						}
 					}else{
-						models = this.failMsg("暂无今日预约记录！");
+						models = this.failMsg("暂无今日预约记录。");
 						inchModels.add(models);
 					}
 				}
 			}else{
-				models = this.failMsg("暂无今日预约记录！");
+				models = this.failMsg("暂无今日预约记录。");
 				inchModels.add(models);
 			}
 		}
 		return inchModels;
 	}
+
+
 
 	public InchModel queryNumberOrder(NumInfoModel bean) throws Exception{
 
@@ -193,7 +286,7 @@ public class NumInfoAction extends BaseAction{
 
 		retmodel.setChilds(bean.getChilds());
 		retmodel.setOrgid(bean.getOrgid());
-		retmodel.setChildname(bean.getChildname());
+//		retmodel.setChildname(bean.getChildname());
 		if(retmodel!=null ){
 
 			if(retmodel.getwList()==null||retmodel.getwList().size()==0){
@@ -201,7 +294,7 @@ public class NumInfoAction extends BaseAction{
 				model= this.failMsg("当前选择业务不能在同一窗口办理，请分别取号。");
 				return model;
 			}
-
+			bean.setOrdertype(1);
 			tonyService.sendNumToPC(bean.getType(),retmodel,Command.COMMAND_PC_GET_NUM,bean.getOrgid());
 			retmodel.setInfoList(null);
 			tonyService.sendToDeviceGetCode(retmodel,bean.getOrgid());
@@ -242,7 +335,7 @@ public class NumInfoAction extends BaseAction{
 
 		retmodel.setChilds(bean.getChilds());
 		retmodel.setOrgid(bean.getOrgid());
-		retmodel.setChildname(bean.getChildname());
+//		retmodel.setChildname(bean.getChildname());
 		if(retmodel!=null ){
 
 			if(retmodel.getwList()==null||retmodel.getwList().size()==0){
@@ -283,13 +376,13 @@ public class NumInfoAction extends BaseAction{
 									//发送短信到取号人手机
 									MessageUtils.sendNorMsg(bean.getCardno(),content2,"");
 								}
-
-
 							}
 						}
 					}
-							//通知区里平台号码已经被使用
-							numInfoService.sandInfoToThird(bean);
+					//通知区里平台号码已经被使用
+					if (bean.getForeigns() == 2){
+						numInfoService.sandInfoToThird(bean);
+					}
 					try {
 						numInfoService.insertChildBus(retmodel);
 					}catch (Exception e){
@@ -334,9 +427,9 @@ public class NumInfoAction extends BaseAction{
 
 	@Auth(verifyLogin = false)
 	@RequestMapping("/getNextNum")
-	public InchModel getId(String wintype,String winname,String winid,int orgid,String firsttype ,String userid,String name) throws Exception{
+	public InchModel getId(String wintype,String winname,String winid,int orgid,String firsttype ,String userid,String name,String num) throws Exception{
 
-		NumInfoModel bean  = numInfoService.updateNextNum(wintype,orgid,firsttype,winid,winname,userid,name);
+		NumInfoModel bean  = numInfoService.updateNextNum(wintype,orgid,firsttype,winid,winname,userid,name,num);
 		if(bean  == null){
 			return this.failMsg("暂时无取号记录!");
 		}
@@ -374,13 +467,54 @@ public class NumInfoAction extends BaseAction{
 
 	@Auth(verifyLogin = false)
 	@RequestMapping("/updateStatus")
-	public void updateNumberStatus(NumInfoModel model,HttpServletResponse response){
+	public void updateNumberStatus(NumInfoModel model, HttpServletResponse response){
+
 		int ret = numInfoService.updateNumberStatus(model);
-		if (ret > 0){
-			sendSuccessMessage(response,"修改成功！");
-		}else {
-			sendFailureMessage(response,"修改失败！");
+
+		if (model.getStatus() == 3 || model.getStatus() == 2){
+
+			NumInfoModel numInfoModel = numInfoService.queryByGuid(model.getGuid());
+			Map<String,Object> map =new HashMap<>();
+
+			map.put("winname",numInfoModel.getWinname());
+			map.put("guid",numInfoModel.getWinid());
+			tonyService.sendCommandToServer(Command.COMMAND_SOCOAL_STOP_BUS, map,numInfoModel.getWinid());
 		}
+
+		if (ret > 0){
+			sendSuccessMessage(response,"修改成功。");
+		}else {
+			sendFailureMessage(response,"修改失败。");
+		}
+	}
+
+	public static boolean checkTime(String startTime,String endTime,int timeAdd){
+		boolean flag = false;
+		try {
+			Date date = new Date();
+			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+			Date b = df.parse(startTime);
+			Date e = df.parse(endTime);
+
+			// Calendar
+			Calendar dateC = Calendar.getInstance();
+			dateC.setTime(date);
+			dateC.add(Calendar.MINUTE,timeAdd);
+			Calendar begin = Calendar.getInstance();
+			begin.setTime(b);
+			Calendar end = Calendar.getInstance();
+			end.setTime(e);
+			if (dateC.after(begin) && dateC.before(end)) {
+//				System.out.println("在区间里");
+				flag = true;
+			}else{
+//				System.out.println("不在区间里");
+				flag = false;
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return flag;
 	}
 
 }

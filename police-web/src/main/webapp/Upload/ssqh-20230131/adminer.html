@@ -23,7 +23,7 @@
 
 			body {
 				background: #fff;
-				font-size: 20px;
+				font-size: 16px;
 				margin: 0;
 				height: 100%;
 
@@ -55,7 +55,7 @@
 
 			.van-cell-group {
 				width: 92%;
-				margin: 60px auto 30px;
+				margin: 40px auto 30px;
 				box-shadow: 0 2px 15px 0 rgba(0, 0, 0, .1);
 				border-radius: 16px;
 			}
@@ -63,7 +63,6 @@
 			#app img {
 				width: 100%;
 				height: auto;
-				margin:0 auto;
 				display: block;
 			}
 
@@ -85,28 +84,26 @@
 
 			#btn_send {
 				text-align: center;
-				width: 330px;
+				width: 280px;
 				/*  */
 				display: block;
 				position: absolute;
-				top: 165px;
+				top: 250px;
 				left: 50%;
-				margin-left: -165px;
+				margin-left: -140px;
 				background: linear-gradient(to right, #5feeeb, #14c7c1);
 				box-shadow: 1px 2px 15px 0 rgba(20, 199, 193, .4);
-				 padding:8px 0px;
+				/* padding:18px 0px; */
+				height: 40px;
+				line-height: 40px;
 				border-radius: 8px;
 				color: #fff;
 				font-size: 14px;
 			}
-			#btn_send h6{
-				font-weight:normal;
-				font-size:14px;
-				margin-top:3px;
-			}
+
 			#hasno {
-				width: 92%;
-				margin: 65px auto 30px;
+				width: 80%;
+				margin: 40px auto 30px;
 				font-size: 18px;
 			}
 
@@ -116,9 +113,7 @@
 			}
 
 			#hasno ul li {
-				padding: 5px 0px;
-				display:flex;
-				justify-content:flex-start;
+				padding: 5px 0px
 			}
 
 			#hasno div:first-of-type {
@@ -128,66 +123,42 @@
 			#hasno ul li b.spe {
 				font-size: 26px;
 			}
-
-			.van-tab__text {
+			.van-tab__text{
+				font-size:16px;
+			}
+			.van-cascader__option{
 				font-size: 16px;
 			}
-
-			.van-cascader__option {
-				font-size: 16px;
+			.van-cell{
+				font-size:18px!important;
 			}
-
-			.van-cell {
-				font-size: 17px !important;
-				padding:20px 16px;
+			>>> .van-cell__title{
+				font-size:16px!important;
 			}
-
-			>>>.van-cell__title {
-				font-size: 16px !important;
+			[v-cloak]{
+				display:none
 			}
-
-			.caheader {
-				padding: 20px 20px;
-				display: flex;
-				justify-content: space-between;
-			}
-
-			.caheader h5 {
-				font-size: 18px;
-				font-weight: normal;
-			}
-
-			.caheader p {
-				color: #4994df;
-				font-size: 18px;
-			}
-			.van-cell__title{
-				position:relative;
-			}
-			.van-cell__title span{
-				position:relative;
-				top:-10px;
-				font-size: 22px;
-			}
-			.van-cell__title p{
-				position:absolute;
-				bottom:-15px;
-				left:0px;
-				font-size:14px;
-			}
-			[v-cloak] {
-				display: none
-			}
-			.notice{
-				padding:10px 16px 10px;
-				font-size:14px;
-
-			}
+			 .current-level {
+			    padding: 10px 16px 0;
+			  }
+			  .caheader{
+				  padding:20px 20px;
+				  display:flex;
+				  justify-content: space-between;
+			  }
+			  .caheader h5{
+				  font-size:18px;
+				  font-weight:normal;
+			  }
+			  .caheader p{
+				  color:#4994df;
+				  font-size:18px;
+			  }
 			#beinfo{
 				color:#0cc3bd;
 				position:absolute;
 				width:300px;
-
+				margin-top:150px;
 				left:50%;
 				margin-left:-150px;
 				text-align:center;
@@ -200,7 +171,13 @@
 			#beinfo li:last-of-type{
 				margin-top:10px
 			}
+			#beinfo li.suc{
+				margin-top:-16px
+			}
 			#beinfo li h4{
+				font-size:22px;
+			}
+			#beinfo li.suc h4{
 				font-size:22px;
 			}
 			#hasno span{
@@ -223,104 +200,60 @@
 			<ul id="beinfo">
 				<li v-if="!hasno">
 					<h4>在线取号</h4>
-					<p>Get a number online</p>
 				</li>
 				<li v-if="!hasno">
 					<h4>选择办理业务，填写个人信息</h4>
-					<p>Please select the service type and fill in the personal information.</p>
 				</li>
 				<li v-if="hasno">
 					<h4>&nbsp;&nbsp;</h4>
 					<p></p>
 				</li>
-				<li v-if="hasno">
+				<li v-if="hasno" class="suc">
 					<h4>您已取号成功</h4>
-					<p>You have successfully taken the number</p>
 				</li>
 			</ul>
-			<img src="./ssbg4.png?v=1" alt="">
+			<img src="./ssbg5.png" alt="">
 			<a href="javascript:void(0)" id="btn_send">
 				狮山横塘便民服务中心
-				<h6>Shishan Hengtang Convenience Service Center</h6>
 			</a>
-<!--			<div class="notice">-->
-<!--				<p>请选择办理业务，填写个人信息：</p>-->
-<!--				<p>Please select the service type and fill in the personal information.</p>-->
-<!--			</div>-->
-			<!-- <section class='van-cell-group' v-if='!hasno'>
+			<section class='van-cell-group' v-if='!hasno'>
 				<van-field v-model="fieldname" is-link readonly label="业务名称" placeholder="请选择业务" @click="show = true">
 				</van-field>
 				<van-field v-model="phone" label="手机号" type='tel' placeholder="请填写" @blur='gethis'></van-field>
 				<van-field v-model="name" label="姓名" placeholder="请填写"></van-field>
 				<van-field v-model="idcard" label="身份证号" placeholder="请填写"></van-field>
-			</section> -->
-			<section class="van-cell-group" v-if='!hasno'>
-				<div role="button" tabindex="0" class="van-cell van-cell--clickable van-field">
-					<div class="van-cell__title van-field__label">
-						<span>业务名称</span>
-						<p>Type of service</p>
-					</div>
-					<div class="van-cell__value van-field__value" @click="show = true">
-						<div class="van-field__body"><input type="text" v-model="fieldname" readonly="readonly" placeholder="请选择业务/Please select business"
-								class="van-field__control"></div>
-					</div><i class="van-icon van-icon-arrow van-cell__right-icon">
-						<!---->
-					</i>
-				</div>
-				<div class="van-cell van-field">
-					<div class="van-cell__title van-field__label"><span>手机号</span><p>Tel No.</p></div>
-					<div class="van-cell__value van-field__value" >
-						<div class="van-field__body"><input type="tel" placeholder="请填写/Please enter" v-model="phone" @blur='gethis' class="van-field__control">
-						</div>
-					</div>
-				</div>
-				<div class="van-cell van-field">
-					<div class="van-cell__title van-field__label"><span>姓名</span><p>Name</p></div>
-					<div class="van-cell__value van-field__value">
-						<div class="van-field__body"><input type="text" placeholder="请填写/Please enter" v-model="name" class="van-field__control">
-						</div>
-					</div>
-				</div>
-				<div class="van-cell van-field">
-					<div class="van-cell__title van-field__label"><span>证件号码</span><p>ID No.</p></div>
-					<div class="van-cell__value van-field__value">
-						<div class="van-field__body"><input type="text" v-model="idcard" placeholder="请填写/Please enter" class="van-field__control">
-						</div>
-					</div>
-				</div>
 			</section>
-			<button class='data_send' @click='postData' v-if='!hasno'>开始取号/Start</button>
+
+			<button class='data_send' @click='postData' v-if='!hasno'>开始取号</button>
 			<div v-if='hasno' id='hasno'>
 				<ul>
 					<li>
-						<span>办理业务：<p>Type of service</p></span><b>{{curtask.childname}}</b>
+						<span>办理业务：</span><b>{{curtask.childname}}</b>
 					</li>
 					<li>
-						<span>您的号码：<p>Your number</p></span><b class='spe'>{{curtask.num}}</b>
+						<span>您的号码：</span><b class='spe'>{{curtask.num}}</b>
 					</li>
 					<li>
-						<span>等候人数：<p>Waiting number</p></span><b>{{curtask.waitcnt}}</b>
+						<span>等候人数：</span><b>{{curtask.waitcnt}}</b>
 					</li>
 					<li>
-						<span>取号时间：<p>Time</p></span><b>{{curtask.addtime | formatetime}}</b>
+						<span>取号时间：</span><b>{{curtask.addtime | formatetime}}</b>
 					</li>
 				</ul>
-				<div>具体办理窗口以叫号为准
-					<p>The window will be subject to the call number.</p>
-				</div>
+				<div>具体办理窗口以叫号为准</div>
 				<div>
 					过号请重新取号
-					<p>Get a new number after the number passed.</p>
 				</div>
 			</div>
+			
 			<van-popup v-model="show" round position="bottom" closeable>
 				<div class='caheader'>
 					<p @click='backto'>返回</p>
 					<h5>请选择业务</h5>
 					<p>&nbsp;&nbsp;&nbsp;&nbsp;</p>
 				</div>
-				<van-cascader v-model="cascaderValue" @change='tabs' title="请选择业务" :show-header='showheader'
-					:options="itemsData" @close="show = false" #options-top="{ tabIndex }" @finish="onFinish">
+				<van-cascader v-model="cascaderValue" @change='tabs' title="请选择业务" :show-header='showheader' :options="itemsData" @close="show = false"  #options-top="{ tabIndex }"
+					@finish="onFinish">
 				</van-cascader>
 			</van-popup>
 		</section>
@@ -334,12 +267,11 @@
 				el: '#app',
 				data: function() {
 					return {
-						curguid: '',
-						curIndex: 0,
-						showheader: false,
-						curtask: {
+						curguid:'',
+						curIndex:0,
+						showheader:false,
+						curtask: {	  
 							typename: '狮山横塘街道市民服务中心',
-							addtime:'2023-01-02 12:02:02.0'
 						},
 						hasno: false,
 						fieldValue: '',
@@ -351,16 +283,13 @@
 						phone: '',
 						idcard: '',
 						name: '',
-						areatype: 0,
-						orgid: 1,
-						foreigns: 0,
-						isposting:false,
+						areatype:0,
+						orgid:1
 					};
 				},
 				mounted: function() {
-					this.areatype = this.GetRequest()['areatype']
+					this.areatype= this.GetRequest()['areatype']
 					this.orgid = this.GetRequest()['orgid']
-					this.foreigns = this.GetRequest()['foreigns']
 					this.getlist()
 
 				},
@@ -370,41 +299,37 @@
 					}
 				},
 				methods: {
-					tabs(a, b, c) {
-
-						var guid = a['selectedOptions'][a.tabIndex - 1] ? a['selectedOptions'][a.tabIndex - 1]['guid'] :
-							''
-						var name = a['selectedOptions'][a.tabIndex - 1] ? a['selectedOptions'][a.tabIndex - 1]['name'] :
-							''
-						this.curguid = guid
-					},
-					backto() {
-
+					backto(){
+						
 						// this.cascaderValue = this.curIndex == 0 ? '':this.curguid[this.curIndex-1]
-						this.cascaderValue = ''
+						this.cascaderValue =  ''	
 						this.$forceUpdate()
 					},
-					gethis() {
+					tabs(a,b,c){
+						
+						var guid = a['selectedOptions'][a.tabIndex-1]?a['selectedOptions'][a.tabIndex-1]['guid']:''
+						var name = a['selectedOptions'][a.tabIndex-1]?a['selectedOptions'][a.tabIndex-1]['name']:''
+						this.curguid = guid
+					},
+					gethis(){
 						console.log(this.phone)
-						if (this.phone == '') return;
-						var that = this
-						this.axios('num/queryHistoryInfo', 'get', {
-							cardno: this.phone
-						}, function(res, a) {
+						if(this.phone == '') return ;
+						var that = this 
+						this.axios('num/queryHistoryInfo', 'get',{cardno:this.phone}, function(res, a) {
 							console.log(res, a)
-							if (res.data) {
+							if(res.data){
 								that.name = res.data['name']
 								that.idcard = res.data['idcard']
 							}
-
+						
 						})
 					},
 					GetRequest() {
-						var url = location.href;
-
+						var url = location.href; 
+					
 						var theRequest = new Object();
 						if (url.indexOf("?") != -1) {
-							var str = url.split("?")[1].replace(/#/g, '')
+							var str = url.split("?")[1].replace(/#/g,'')
 							strs = str.split("&");
 							for (var i = 0; i < strs.length; i++) {
 								theRequest[strs[i].split("=")[0]] = decodeURI(strs[i].split("=")[1]);
@@ -422,51 +347,27 @@
 							cardno: this.phone,
 							idcard: this.idcard,
 							name: this.name,
-							ordertype: 2,
-							areatype: this.areatype,
-							foreigns: this.foreigns,
-
+							ordertype:2,
+							areatype:this.areatype,
+							
 						}
-						if (this.fieldname == '') {
-							vant.Toast('请选择要办理的业务')
-							return false;
-						}
-						if (this.name == '') {
-							vant.Toast('请输入姓名')
-							return false;
-						}
-						if (this.phone.length != 11) {
-							vant.Toast('请确认手机号是否正确')
-							return false;
-						}
-						// if (!this.check_id_card(this.idcard)) {
-						// 	vant.Toast('请检查身份证号！')
-						// 	return false
-						// }
+					
 						console.log(param)
-						if(!this.isposting){
-							that.isposting = true
-							this.axios('num/save.do', 'post', param, function(res, a) {
-								console.log(res, a)
-								if (res.success) {
-									that.curtask = res.data
-									that.hasno = true
-								} else {
-									vant.Toast(res.msg)
-								}
-								setTimeout(function(){
-									that.isposting = false
-								},200)
-							})
-						}else{
-							vant.Toast('请勿重复提交数据')
-						}
+						this.axios('num/save.do', 'post', param, function(res, a) {
+							console.log(res, a)
+							if (res.success) {
+								that.curtask = res.data
+								that.hasno = true
+							} else {
+								vant.Toast(res.msg)
+							}
+
+						})
 					},
 					onFinish(e) {
-
+						
 						var _name = e.selectedOptions[e.selectedOptions.length - 1]
-						var _parent = e.selectedOptions[e.selectedOptions.length - 2] ? e.selectedOptions[e
-							.selectedOptions.length - 2] : e.selectedOptions[e.selectedOptions.length - 1]
+						var _parent = e.selectedOptions[e.selectedOptions.length - 2] ? e.selectedOptions[e.selectedOptions.length - 2] : e.selectedOptions[e.selectedOptions.length - 1]
 						console.log(_name, _parent)
 						this.parentvalue = _parent['value']
 						this.fieldname = _name['name']
@@ -477,17 +378,10 @@
 					getlist() {
 						var that = this
 
-						this.axios("sysDic/getDicInfo", 'get', {
-							orgid: this.orgid
-						}, function(a, res) {
-
-
-
+						this.axios("sysDic/getDicInfo", 'get', {orgid:this.orgid}, function(a, res) {
+						
 							var codes = this.code = a.code
-							var detial = this.detial = a.detial.filter(function(val, index) {
-								return val['status'] != 2
-							})
-
+							var detial = this.detial = a.detial
 							codes.map(function(val, index) {
 								val['children'] = []
 								val['value'] = val['guid']
@@ -509,11 +403,11 @@
 											vc['children'].push(dl)
 										}
 									})
-									if (vc['children'].length == 0) {
+									if(vc['children'].length == 0){
 										delete vc['children']
 									}
 								})
-
+							
 							})
 							that.itemsData = codes
 							console.log(codes)
@@ -524,9 +418,9 @@
 					},
 
 					axios: function(url, type, param, callBack) {
-						// var baseurl = '/api/'+url
-						var baseurl = 'http://223.112.126.90:8088/police-rest/'+url
-						// var baseurl = 'http://192.168.1.103:8088/police-rest/' + url
+						//var baseurl = '/api/'+url
+						// var baseurl = 'http://223.112.126.90:8088/police-rest/'+url
+						var baseurl = 'http://192.168.1.103:8088/police-rest/'+url
 						$.ajax({
 							url: baseurl,
 							type: type,

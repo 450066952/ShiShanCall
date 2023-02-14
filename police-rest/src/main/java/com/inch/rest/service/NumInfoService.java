@@ -126,22 +126,20 @@ public class NumInfoService<T> extends BaseService<T> {
 		}
 	}
 
-	public void sandInfoToThird(NumInfoModel bean){
+	public boolean sandInfoToThird(NumInfoModel bean){
+		boolean isOk = false;
 		Map<String,Object> map=new HashMap<>();
 		//取号成功后反馈到区平台
 		String urlNumber = "https://www.sndzwfw.com/apijava/api/queue/get/number";
 		//通过身份证号码获取用户预约信息
-		if (bean.getLevel() == 3){
-			map.put("flag","3");
-		}else{
-			map.put("flag","2");
-		}
+
+		map.put("flag",bean.getOrdertype() + "");
 		map.put("userName","222");
 		map.put("userCard",bean.getIdcard());
 		map.put("itemId",bean.getChilds());
 		map.put("ouGuid","320505002004CS");
-		map.put("startTime",timeAdd(0));
-		map.put("endTime",timeAdd(10));
+		map.put("startTime",bean.getStarttime());
+		map.put("endTime",bean.getEndtime());
 		map.put("onlyCheck","1");
 		map.put("distanceFlag",false);
 		map.put("checkLocalFlag",false);
@@ -154,8 +152,14 @@ public class NumInfoService<T> extends BaseService<T> {
 			JSONObject resultNumber = JSONObject.parseObject(jsonObjectNumber.getString("result"));
 			String itemNumber = resultNumber.getString("items");
 			List<Map> itemsNumber = JSONArray.parseArray(itemNumber, Map.class);
-			logger.info("取号返回信息：" + itemsNumber);
+			if (itemsNumber.size() > 0){
+				Map<String, String> maps = itemsNumber.get(0);
+				if ("3".equals(maps.get("flag"))){
+					isOk = true;
+				}
+			}
 		}
+		return isOk;
 	}
 
 	public static String timeAdd(int addLong){
@@ -236,11 +240,12 @@ public class NumInfoService<T> extends BaseService<T> {
 	}
 
 	public synchronized NumInfoModel  updateNextNum(String type,int orgid,String firsttype,
-													String winid,String winname,String userid,String name){
+													String winid,String winname,String userid,String name,String num){
 		Map<String,Object> map=new HashMap<>();
 		map.put("type",type);
 		map.put("orgid",orgid);
 		map.put("firsttype",firsttype);
+		map.put("num",num);
 //		NumInfoModel model=getMapper().queryNextNum(map);
 
 		List<NumInfoModel> list= getMapper().queryNextNum2(map);
@@ -359,5 +364,13 @@ public class NumInfoService<T> extends BaseService<T> {
 			model.setEndtime(CommonUtil.now());
 		}
 		return getMapper().updateNumberStatus(model);
+	}
+
+	public NumInfoModel queryByGuid(String guid) {
+		return getMapper().queryByGuid(guid);
+	}
+
+	public int queryDicByIdCard(NumInfoModel bean) {
+		return getMapper().queryDicByIdCard(bean);
 	}
 }

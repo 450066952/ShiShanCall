@@ -7,7 +7,7 @@
 		<meta name="format-detection" content="telephone=no">
 		<meta name="viewport"
 			content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0,user-scalable=no">
-		<title>狮山横塘街道市民服务中心</title>
+		<title>狮山横塘便民服务中心</title>
 		<link rel="stylesheet" href="./css/vant.css">
 		<style>
 			html {
@@ -123,56 +123,91 @@
 			#hasno ul li b.spe {
 				font-size: 26px;
 			}
-			.van-tab__text{
-				font-size:16px;
-			}
-			.van-cascader__option{
+
+			.van-tab__text {
 				font-size: 16px;
 			}
-			.van-cell{
-				font-size:16px!important;
+
+			.van-cascader__option {
+				font-size: 16px;
 			}
-			>>> .van-cell__title{
-				font-size:16px!important;
+
+			.van-cell {
+				font-size: 18px !important;
 			}
-			[v-cloak]{
-				display:none
+
+			>>>.van-cell__title {
+				font-size: 16px !important;
 			}
-			 .current-level {
-			    padding: 10px 16px 0;
-			  }
-			  .caheader{
-				  padding:20px 20px;
-				  display:flex;
-				  justify-content: space-between;
-			  }
-			  .caheader h5{
-				  font-size:18px;
-				  font-weight:normal;
-			  }
-			  .caheader p{
-				  color:#4994df;
-				  font-size:18px;
-			  }
+
+			[v-cloak] {
+				display: none
+			}
+			#beinfo{
+				color:#0cc3bd;
+				position:absolute;
+				width:300px;
+				margin-top:150px;
+				left:50%;
+				margin-left:-150px;
+				text-align:center;
+				font-size:16px;
+			}
+			#beinfo li{
+				text-align:center;
+				margin-top:20px;
+			}
+			#beinfo li:last-of-type{
+				margin-top:10px
+			}
+			#beinfo li h4{
+				font-size:22px;
+			}
+			#hasno span{
+				displya:inline-block;
+				width:150px;
+			}
+			#hasno p{
+				font-size:14px;
+			}
+			#hasno h4{
+				text-align:center;
+				color:#0cc3bd;
+			}
 		</style>
 	</head>
 
 	<body>
 		<!-- <div id='token'></div> -->
 		<section class="mui-input-group" id='app' v-cloak>
-			<img src="./ssbg.png" alt="">
-			<a href="javascript:void(0)" id="btn_send">
-				狮山横塘街道市民服务中心
-			</a>
+			<ul id="beinfo">
+				<li v-if="!hasno">
+					<h4>在线取号</h4>
+				</li>
+				<li v-if="!hasno">
+					<h4>选择办理业务，填写个人信息</h4>
+				</li>
+				<li v-if="hasno">
+					<h4>&nbsp;&nbsp;</h4>
+					<p></p>
+				</li>
+				<li v-if="hasno">
+					<h4>您已取号成功</h4>
+				</li>
+			</ul>
+			<img src="./ssbg5.png" alt="">
+			<!-- 	<a href="javascript:void(0)" id="btn_send">
+				狮山横塘便民服务中心
+			</a> -->
 			<section class='van-cell-group' v-if='!hasno'>
-				<van-field v-model="fieldname" is-link readonly label="业务名称" placeholder="请选择业务" @click="show = true">
-				</van-field>
+				<!-- <van-field v-model="fieldname" is-link readonly label="业务名称" placeholder="请选择业务" @click="show = true">
+				</van-field> -->
 				<van-field v-model="phone" label="手机号" type='tel' placeholder="请填写" @blur='gethis'></van-field>
-				<van-field v-model="name" label="姓名" placeholder="请填写"></van-field>
+				<van-field v-model="name" label="姓名" placeholder="请填写"></van-field>		
 				<van-field v-model="idcard" label="身份证号" placeholder="请填写"></van-field>
 			</section>
 
-			<button class='data_send' @click='postData' v-if='!hasno'>开始取号</button>
+			<button class='data_send' @click='postData' v-if='!hasno' style='margin-top:100px'>开始取号</button>
 			<div v-if='hasno' id='hasno'>
 				<ul>
 					<li>
@@ -188,22 +223,13 @@
 						<span>取号时间：</span><b>{{curtask.addtime | formatetime}}</b>
 					</li>
 				</ul>
-				<div>
-					请截图保存
-				</div>
 				<div>具体办理窗口以叫号为准</div>
 				<div>
 					过号请重新取号
 				</div>
 			</div>
-			
-			<van-popup v-model="show" round position="bottom" closeable>
-				<div class='caheader'>
-					<p @click='backto'>返回</p>
-					<h5>请选择业务</h5>
-					<p>&nbsp;&nbsp;&nbsp;&nbsp;</p>
-				</div>
-				<van-cascader v-model="cascaderValue" @change='tabs' title="请选择业务" :show-header='showheader' :options="itemsData" @close="show = false"  #options-top="{ tabIndex }"
+			<van-popup v-model="show" round position="bottom">
+				<van-cascader v-model="cascaderValue" title="请选择业务" :options="itemsData" @close="show = false"
 					@finish="onFinish">
 				</van-cascader>
 			</van-popup>
@@ -218,10 +244,7 @@
 				el: '#app',
 				data: function() {
 					return {
-						curguid:'',
-						curIndex:0,
-						showheader:false,
-						curtask: {	  
+						curtask: {
 							typename: '狮山横塘街道市民服务中心',
 						},
 						hasno: false,
@@ -234,14 +257,14 @@
 						phone: '',
 						idcard: '',
 						name: '',
-						areatype:0,
-						orgid:1
+						areatype: 0,
+						orgid: 1
 					};
 				},
 				mounted: function() {
-					this.areatype= this.GetRequest()['areatype']
+					this.areatype = this.GetRequest()['areatype']
 					this.orgid = this.GetRequest()['orgid']
-					this.getlist()
+					
 
 				},
 				filters: {
@@ -250,17 +273,18 @@
 					}
 				},
 				methods: {
-					backto(){
-						
-						// this.cascaderValue = this.curIndex == 0 ? '':this.curguid[this.curIndex-1]
-						this.cascaderValue =  ''	
-						this.$forceUpdate()
-					},
-					tabs(a,b,c){
-						
-						var guid = a['selectedOptions'][a.tabIndex-1]?a['selectedOptions'][a.tabIndex-1]['guid']:''
-						var name = a['selectedOptions'][a.tabIndex-1]?a['selectedOptions'][a.tabIndex-1]['name']:''
-						this.curguid = guid
+					GetRequest() {
+						var url = location.href;
+
+						var theRequest = new Object();
+						if (url.indexOf("?") != -1) {
+							var str = url.split("?")[1].replace(/#/g, '')
+							strs = str.split("&");
+							for (var i = 0; i < strs.length; i++) {
+								theRequest[strs[i].split("=")[0]] = decodeURI(strs[i].split("=")[1]);
+							}
+						}
+						return theRequest;
 					},
 					gethis(){
 						console.log(this.phone)
@@ -275,35 +299,33 @@
 						
 						})
 					},
-					GetRequest() {
-						var url = location.href; 
-					
-						var theRequest = new Object();
-						if (url.indexOf("?") != -1) {
-							var str = url.split("?")[1].replace(/#/g,'')
-							strs = str.split("&");
-							for (var i = 0; i < strs.length; i++) {
-								theRequest[strs[i].split("=")[0]] = decodeURI(strs[i].split("=")[1]);
-							}
-						}
-						return theRequest;
-					},
 					postData() {
 						var that = this
-						var param = {
-							type: this.parentvalue,
-							childname: this.fieldname,
-							childs: this.fieldValue,
-							orgid: this.orgid,
-							cardno: this.phone,
-							idcard: this.idcard,
-							name: this.name,
-							ordertype:2,
-							areatype:this.areatype,
-							
+						if (this.name == '') {
+							vant.Toast('请输入姓名')
+							return false;
 						}
-					
-						console.log(param)
+						if(this.phone.length!=11){
+							vant.Toast('请确认手机号是否正确')
+							return false;
+						}
+						if(!this.check_id_card(this.idcard)){
+							vant.Toast('请确认身份证号是否正确')
+							return false
+						}
+						var param = {
+							type: '138d0936-6bb6-43ec-8564-69b55209bc82',
+							childname: '核发居民身份证',
+							childs: 'e7e3238d-e89d-88d5-932b-d85da570c38f',
+							orgid: this.orgid,
+							idcard: this.idcard,
+							cardno: this.phone,
+							name: this.name,
+							ordertype: 2,
+							areatype: this.areatype,
+
+						}
+
 						this.axios('num/save.do', 'post', param, function(res, a) {
 							console.log(res, a)
 							if (res.success) {
@@ -311,14 +333,15 @@
 								that.hasno = true
 							} else {
 								vant.Toast(res.msg)
+
 							}
 
 						})
 					},
 					onFinish(e) {
-						
+
 						var _name = e.selectedOptions[e.selectedOptions.length - 1]
-						var _parent = e.selectedOptions[e.selectedOptions.length - 2] ? e.selectedOptions[e.selectedOptions.length - 2] : e.selectedOptions[e.selectedOptions.length - 1]
+						var _parent = e.selectedOptions[e.selectedOptions.length - 2]
 						console.log(_name, _parent)
 						this.parentvalue = _parent['value']
 						this.fieldname = _name['name']
@@ -329,10 +352,7 @@
 					getlist() {
 						var that = this
 
-						this.axios("sysDic/getDicInfo", 'get', {orgid:this.orgid}, function(a, res) {
-						
-	
-		
+						this.axios("sysDic/getDicInfo?orgid="+this.orgid, 'get', {}, function(a, res) {
 							var codes = this.code = a.code
 							var detial = this.detial = a.detial
 							codes.map(function(val, index) {
@@ -356,11 +376,7 @@
 											vc['children'].push(dl)
 										}
 									})
-									if(vc['children'].length == 0){
-										delete vc['children']
-									}
 								})
-							
 							})
 							that.itemsData = codes
 							console.log(codes)
@@ -371,9 +387,10 @@
 					},
 
 					axios: function(url, type, param, callBack) {
-						//var baseurl = '/api/'+url
+						// var baseurl = '/police-rest/'
+						// var baseurl = '/api/'+url
 						// var baseurl = 'http://223.112.126.90:8088/police-rest/'+url
-						var baseurl = 'http://192.168.1.116:8088/police-rest/'+url
+						var baseurl = 'http://192.168.1.103:8088/police-rest/'+url
 						$.ajax({
 							url: baseurl,
 							type: type,

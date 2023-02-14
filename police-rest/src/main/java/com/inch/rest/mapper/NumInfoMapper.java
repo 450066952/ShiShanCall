@@ -34,4 +34,8 @@ public interface NumInfoMapper<T> extends BaseMapper<T> {
     int addOrder(NumInfoModel model);
 
     int updateNumberStatus(NumInfoModel model);
+
+    NumInfoModel queryByGuid(String guid);
+
+    int queryDicByIdCard(NumInfoModel bean);
 }

@@ -55,7 +55,7 @@
 
 			.van-cell-group {
 				width: 92%;
-				margin: 20px auto 30px;
+				margin: 40px auto 30px;
 				box-shadow: 0 2px 15px 0 rgba(0, 0, 0, .1);
 				border-radius: 16px;
 			}
@@ -88,7 +88,7 @@
 				/*  */
 				display: block;
 				position: absolute;
-				top: 230px;
+				top: 250px;
 				left: 50%;
 				margin-left: -140px;
 				background: linear-gradient(to right, #5feeeb, #14c7c1);
@@ -103,7 +103,7 @@
 
 			#hasno {
 				width: 80%;
-				margin: 20px auto 30px;
+				margin: 40px auto 30px;
 				font-size: 18px;
 			}
 
@@ -151,13 +151,60 @@
 			[v-cloak]{
 				display:none
 			}
+
+			#beinfo{
+				color:#0cc3bd;
+				position:absolute;
+				width:300px;
+				margin-top:140px;
+				left:50%;
+				margin-left:-150px;
+				text-align:center;
+				font-size:16px;
+			}
+			#beinfo li{
+				text-align:center;
+				margin-top:20px;
+			}
+			#beinfo li:last-of-type{
+				margin-top:10px
+			}
+			#beinfo li h4{
+				font-size:22px;
+			}
+			#hasno span{
+				displya:inline-block;
+				width:150px;
+			}
+			#hasno p{
+				font-size:14px;
+			}
+			#hasno h4{
+				text-align:center;
+				color:#0cc3bd;
+			}
 		</style>
 	</head>
 
 	<body>
 		<!-- <div id='token'></div> -->
 		<section class="mui-input-group" id='app' v-cloak>
-			<img src="./ssbg.png" alt="">
+			<ul id="beinfo">
+				<li v-if="!hasno">
+					<h4>在线取号</h4>
+				</li>
+				<li v-if="!hasno">
+					<h4>选择办理业务，填写个人信息</h4>
+				</li>
+				<li v-if="hasno">
+					<h4>&nbsp;&nbsp;</h4>
+					<p></p>
+				</li>
+				<li v-if="hasno">
+					<h4>您已取号成功</h4>
+				</li>
+			</ul>
+			<img src="./ssbg5.png" alt="">
 			<a href="javascript:void(0)" id="btn_send">
 				狮山横塘便民服务中心
 			</a>
@@ -228,7 +275,8 @@
 						idcard: '',
 						name: '',
 						areatype:0,
-						orgid:1
+						orgid:1,
+						isposting:false,
 					};
 				},
 				mounted: function() {
@@ -312,16 +360,23 @@
 							return false
 						}
 						console.log(param)
-						this.axios('num/save.do', 'post', param, function(res, a) {
-							console.log(res, a)
-							if (res.success) {
-								that.curtask = res.data
-								that.hasno = true
-							} else {
-								vant.Toast(res.msg)
-							}
-
-						})
+						if(!this.isposting){
+							that.isposting = true
+							this.axios('num/save.do', 'post', param, function(res, a) {
+								console.log(res, a)
+								if (res.success) {
+									that.curtask = res.data
+									that.hasno = true
+								} else {
+									vant.Toast(res.msg)
+								}
+								setTimeout(function(){
+									that.isposting = false
+								},200)
+							})
+						}else{
+							vant.Toast('请勿重复提交数据')
+						}
 					},
 					onFinish(e) {
 
@@ -383,8 +438,8 @@
 
 					axios: function(url, type, param, callBack) {
 						// var baseurl = '/api/'+url
-						// var baseurl = 'http://223.112.126.90:8088/police-rest/'+url
-						var baseurl = 'http://192.168.1.199:8088/police-rest/'+url
+						var baseurl = 'http://223.112.126.90:8088/police-rest/'+url
+						// var baseurl = 'http://192.168.1.103:8088/police-rest/'+url
 						$.ajax({
 							url: baseurl,
 							type: type,
